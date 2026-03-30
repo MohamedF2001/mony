@@ -1295,6 +1295,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/providers/user_provider.dart';
 import '../../../../core/entities/user.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../budget/presentation/providers/budget_providers.dart';
 import '../../../category/presentation/providers/category_providers.dart';
 import '../../../financial_profile/domain/entities/financial_profile.dart';
@@ -1313,6 +1314,11 @@ class UserProfileScreen extends ConsumerStatefulWidget {
 class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   final _nameController = TextEditingController();
   bool _isEditingName = false;
+
+  bool _notificationsEnabled = false; // ✅ AJOUT ICI
+
+  bool isExpanded = false;
+
 
   @override
   void dispose() {
@@ -1420,7 +1426,70 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   }
 
   Widget _buildHeader(User user) {
-    return Container(
+    return
+      Padding(
+        padding: const EdgeInsets.only(left: 15,right: 15),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppColors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person,
+                  color: AppColors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.name.isEmpty ? 'Utilisateur' : user.name,
+                      //user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                      style: AppTypography.textTheme.titleLarge?.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Membre depuis ${_formatDate(user.createdAt)}',
+                      style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    /*Text(
+                      userEmail.isEmpty ? 'email non renseigné' : userEmail,
+                      style: AppTypography.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.white.withOpacity(0.9),
+                      ),
+                    ),*/
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -1575,6 +1644,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
             'Profil Financier',
@@ -1637,7 +1707,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
           const SizedBox(height: 20),
 
           // Scores des traits
-          const Text(
+          /*const Text(
             'Analyse détaillée',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
@@ -1689,7 +1759,109 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 ],
               ),
             );
-          }).toList(),
+          }).toList(),*/
+
+          /*ExpansionTile(
+            onExpansionChanged: (expanded) {
+              setState(() => isExpanded = expanded);
+            },
+            leading: Icon(
+              isExpanded ? Icons.expand_less : Icons.expand_more,
+            ),
+            title: const Text(
+              'Analyse détaillée',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            children: profile.traitScores.entries.map((entry) {
+              final label = _getLabelForTrait(entry.key);
+              final value = entry.value;
+
+              return ListTile(
+                title: Text(label),
+                trailing: Text(
+                  '${value.toInt()}/100',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: LinearProgressIndicator(
+                    value: value / 100,
+                    minHeight: 6,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation(
+                      _getColorForScore(value),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),*/
+
+
+          ExpansionTile(
+            title: const Text(
+              'Analyse détaillée',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            children: profile.traitScores.entries.map((entry) {
+              final traitType = entry.key;
+              final label = _getLabelForTrait(traitType);
+              final value = entry.value;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          label,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '${value.toInt()}/100',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: value / 100,
+                        minHeight: 6,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          _getColorForScore(value),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+
+
 
           const SizedBox(height: 16),
 
@@ -1710,6 +1882,26 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 ),
               ),
             ),
+          ),
+
+          SizedBox(height: 16),
+
+
+          _buildSettingsTile(
+            icon: Icons.notifications_outlined,
+            title: 'Rappels quotidiens',
+            subtitle: 'Notification à 9h chaque jour',
+            trailing: Switch(
+              value: _notificationsEnabled,
+              onChanged: (value) async {
+                if (value) {
+                  await NotificationService().scheduleDailyNotification();
+                } else {
+                  await NotificationService().cancelAllNotifications();
+                }
+                setState(() => _notificationsEnabled = value);
+              },
+            ), onTap: () {  },
           ),
 
           _buildSection(
@@ -1808,23 +2000,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
             ],
           ),
 
-          const SizedBox(height: 32),
-
-          // Logout Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.error,
-                side: const BorderSide(color: AppColors.error),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text('Se déconnecter'),
-            ),
-          ),
-
-          const SizedBox(height: 32),
+          const SizedBox(height: 2),
         ],
       ),
     );

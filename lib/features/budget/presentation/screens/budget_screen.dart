@@ -32,6 +32,8 @@ class BudgetScreen extends ConsumerWidget {
         ],*/
       ),
       floatingActionButton: FloatingActionButton.extended(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.blue,
         onPressed: () => _showAddBudgetDialog(context),
         icon: const Icon(Icons.add),
         label: const Text('Nouveau budget'),
