@@ -39,38 +39,50 @@ class SpendingChart extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppColors.shadowLight.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Dépenses par catégorie',
-            style: AppTypography.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Répartition des dépenses',
+                style: AppTypography.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              Icon(Icons.pie_chart, color: AppColors.primary.withOpacity(0.5), size: 20),
+            ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           SizedBox(
-            height: 200,
+            height: 180,
             child: PieChart(
               PieChartData(
-                sectionsSpace: 2,
-                centerSpaceRadius: 60,
+                sectionsSpace: 4,
+                centerSpaceRadius: 55,
+                startDegreeOffset: -90,
                 sections: _buildPieChartSections(categoryTotals, totalExpense),
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          ..._buildLegend(categoryTotals, totalExpense),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: _buildLegend(categoryTotals, totalExpense),
+          ),
         ],
       ),
     );
@@ -87,16 +99,18 @@ class SpendingChart extends StatelessWidget {
       final index = entry.key;
       final categoryEntry = entry.value;
       final percentage = (categoryEntry.value / total * 100);
+      final color = AppColors.categoryColors[index % AppColors.categoryColors.length];
 
       return PieChartSectionData(
         value: categoryEntry.value,
         title: '${percentage.toStringAsFixed(0)}%',
-        color:
-            AppColors.categoryColors[index % AppColors.categoryColors.length],
-        radius: 50,
+        color: color,
+        radius: 20,
+        showTitle: percentage > 10,
         titleStyle: AppTypography.textTheme.labelSmall?.copyWith(
           color: AppColors.white,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
+          fontSize: 10,
         ),
       );
     }).toList();
@@ -106,21 +120,28 @@ class SpendingChart extends StatelessWidget {
     final sortedEntries = data.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return sortedEntries.take(5).toList().asMap().entries.map((entry) {
+    return sortedEntries.take(4).toList().asMap().entries.map((entry) {
       final index = entry.key;
       final categoryEntry = entry.value;
       final percentage = (categoryEntry.value / total * 100);
+      final color = AppColors.categoryColors[index % AppColors.categoryColors.length];
 
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+      return Container(
+        width: 140,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border.withOpacity(0.5)),
+        ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 12,
-              height: 12,
+              width: 8,
+              height: 8,
               decoration: BoxDecoration(
-                color: AppColors
-                    .categoryColors[index % AppColors.categoryColors.length],
+                color: color,
                 shape: BoxShape.circle,
               ),
             ),
@@ -128,14 +149,20 @@ class SpendingChart extends StatelessWidget {
             Expanded(
               child: Text(
                 categoryEntry.key,
-                style: AppTypography.textTheme.bodySmall,
+                style: AppTypography.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
-              '${percentage.toStringAsFixed(1)}%',
+              '${percentage.toStringAsFixed(0)}%',
               style: AppTypography.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w800,
+                color: color,
+                fontSize: 10,
               ),
             ),
           ],

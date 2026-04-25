@@ -82,8 +82,9 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                     child: _SummaryCard(
                       title: 'Revenus',
                       amount: totalIncome,
-                      icon: Icons.arrow_downward,
+                      icon: Icons.add_circle_outline,
                       color: AppColors.income,
+                      gradient: AppColors.incomeGradient,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -91,21 +92,22 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                     child: _SummaryCard(
                       title: 'Dépenses',
                       amount: totalExpense,
-                      icon: Icons.arrow_upward,
+                      icon: Icons.remove_circle_outline,
                       color: AppColors.expense,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _SummaryCard(
-                      title: 'Solde',
-                      amount: balance,
-                      icon: Icons.account_balance_wallet,
-                      color: balance >= 0 ? AppColors.success : AppColors.error,
+                      gradient: AppColors.expenseGradient,
                     ),
                   ),
                 ],
               ),
+            ),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _BalanceBanner(balance: balance),
             ),
           ),
 
@@ -222,12 +224,14 @@ class _SummaryCard extends StatelessWidget {
   final double amount;
   final IconData icon;
   final Color color;
+  final Gradient gradient;
 
   const _SummaryCard({
     required this.title,
     required this.amount,
     required this.icon,
     required this.color,
+    required this.gradient,
   });
 
   @override
@@ -236,12 +240,12 @@ class _SummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: color.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -249,30 +253,92 @@ class _SummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: AppColors.white, size: 18),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             title,
             style: AppTypography.textTheme.labelSmall?.copyWith(
               color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             amount.toCompactMoney(),
             style: AppTypography.textTheme.titleMedium?.copyWith(
-              fontSize: 14,
-              color: color,
-              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BalanceBanner extends StatelessWidget {
+  final double balance;
+
+  const _BalanceBanner({required this.balance});
+
+  @override
+  Widget build(BuildContext context) {
+    final isPositive = balance >= 0;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: isPositive ? AppColors.primaryGradient : AppColors.expenseGradient,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: (isPositive ? AppColors.primary : AppColors.error).withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Solde disponible',
+                  style: AppTypography.textTheme.labelSmall?.copyWith(
+                    color: AppColors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  balance.toFormattedMoney(),
+                  style: AppTypography.textTheme.titleLarge?.copyWith(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 22,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.account_balance_wallet, color: AppColors.white, size: 28),
           ),
         ],
       ),

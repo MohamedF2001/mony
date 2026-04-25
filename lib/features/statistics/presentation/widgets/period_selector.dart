@@ -18,27 +18,27 @@ class PeriodSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: AppColors.shadowLight.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Row(
         children: [
           _PeriodButton(
-            label: 'Semaine',
+            label: '7J',
             isSelected: selectedPeriod == StatisticsPeriod.week,
             onTap: () => onPeriodChanged(StatisticsPeriod.week),
           ),
           _PeriodButton(
-            label: 'Mois',
+            label: '30J',
             isSelected: selectedPeriod == StatisticsPeriod.month,
             onTap: () => onPeriodChanged(StatisticsPeriod.month),
           ),
@@ -71,20 +71,28 @@ class _PeriodButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(8),
+              gradient: isSelected ? AppColors.primaryGradient : null,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                )
+              ] : null,
             ),
             child: Text(
               label,
               textAlign: TextAlign.center,
               style: AppTypography.textTheme.labelLarge?.copyWith(
                 color: isSelected ? AppColors.white : AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               ),
             ),
           ),
