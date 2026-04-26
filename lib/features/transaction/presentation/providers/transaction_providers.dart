@@ -110,7 +110,7 @@ class TransactionState {
     return filtered;
   }
 
-  double get totalIncome {
+  /*double get totalIncome {
     return filteredTransactions
         .where((t) => t.isIncome)
         .fold(0, (sum, t) => sum + t.amount);
@@ -119,6 +119,18 @@ class TransactionState {
   double get totalExpense {
     return filteredTransactions
         .where((t) => t.isExpense)
+        .fold(0, (sum, t) => sum + t.amount);
+  }*/
+
+  double get totalIncome {
+    return filteredTransactions
+        .where((t) => t.type == TransactionType.income)
+        .fold(0, (sum, t) => sum + t.amount);
+  }
+
+  double get totalExpense {
+    return filteredTransactions
+        .where((t) => t.type == TransactionType.expense)
         .fold(0, (sum, t) => sum + t.amount);
   }
 

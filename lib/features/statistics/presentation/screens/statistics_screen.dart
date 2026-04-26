@@ -13,6 +13,7 @@ import '../providers/statistics_providers.dart';
 import '../widgets/period_selector.dart';
 import '../widgets/category_breakdown_chart.dart';
 import '../widgets/trend_line_chart.dart';
+import '../widgets/advanced_stacked_chart.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({super.key});
@@ -605,6 +606,7 @@ import '../providers/statistics_providers.dart';
 import '../widgets/period_selector.dart';
 import '../widgets/category_breakdown_chart.dart';
 import '../widgets/trend_line_chart.dart';
+import '../widgets/advanced_stacked_chart.dart';
 
 class StatisticsScreen extends ConsumerStatefulWidget {
   const StatisticsScreen({super.key});
@@ -1052,6 +1054,8 @@ class _TrendsTab extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         TrendLineChart(period: period),
+        const SizedBox(height: 24),
+        AdvancedStackedChart(period: period),
         const SizedBox(height: 24),
         _buildInsightsCard(context, insights),
       ],

@@ -229,140 +229,141 @@ class TrendLineChart extends ConsumerWidget {
   }
 
   LineChartData _buildChartData(List<TrendDataPoint> dataPoints) {
-    // Calculer les valeurs min et max pour l'échelle
     final allValues = dataPoints.expand((p) => [p.income, p.expense]).toList();
-    final maxValue = allValues.reduce((a, b) => a > b ? a : b);
-    final minValue = allValues.reduce((a, b) => a < b ? a : b);
+    final maxValue = allValues.isNotEmpty ? allValues.reduce((a, b) => a > b ? a : b) : 0.0;
+    final minValue = allValues.isNotEmpty ? allValues.reduce((a, b) => a < b ? a : b) : 0.0;
 
-    // Arrondir les valeurs pour l'échelle
     final maxY = (maxValue * 1.2).ceilToDouble();
-    final minY = (minValue * 0.8).floorToDouble();
-        //.clamp(0, double.infinity);
+    final minY = (minValue < 0) ? (minValue * 1.1).floorToDouble() : 0.0;
 
     return LineChartData(
       minY: minY,
       maxY: maxY,
       gridData: FlGridData(
         show: true,
-        drawVerticalLine: false,
+        drawVerticalLine: true,
         horizontalInterval: _calculateInterval(maxY - minY),
-        getDrawingHorizontalLine: (value) {
-          return FlLine(
-            color: AppColors.divider,
-            strokeWidth: 1,
-          );
-        },
+        getDrawingHorizontalLine: (value) => FlLine(
+          color: AppColors.divider.withOpacity(0.5),
+          strokeWidth: 1,
+          dashArray: [5, 5],
+        ),
+        getDrawingVerticalLine: (value) => FlLine(
+          color: AppColors.divider.withOpacity(0.2),
+          strokeWidth: 1,
+        ),
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
-            interval: 1,
-            getTitlesWidget: (value, meta) {
-              return _buildBottomTitle(value.toInt(), dataPoints);
-            },
+            reservedSize: 32,
+            interval: _calculateBottomInterval(dataPoints.length),
+            getTitlesWidget: (value, meta) => _buildBottomTitle(value.toInt(), dataPoints),
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 50,
+            reservedSize: 45,
             interval: _calculateInterval(maxY - minY),
-            getTitlesWidget: (value, meta) {
-              return Text(
+            getTitlesWidget: (value, meta) => Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(
                 _formatAmount(value),
                 style: AppTypography.textTheme.labelSmall?.copyWith(
                   fontSize: 10,
+                  color: AppColors.textTertiary,
                 ),
-              );
-            },
+                textAlign: TextAlign.right,
+              ),
+            ),
           ),
         ),
       ),
       borderData: FlBorderData(show: false),
       lineTouchData: LineTouchData(
         enabled: true,
+        handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
-          //tooltipBgColor: AppColors.textPrimary.withOpacity(0.9),
-          //tooltipRoundedRadius: 8,
-          tooltipPadding: const EdgeInsets.all(8),
+          getTooltipColor: (spot) => AppColors.primary.withOpacity(0.8),
+          tooltipBorderRadius: BorderRadius.circular(12),
+          tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
               final date = dataPoints[spot.x.toInt()].date;
               final isIncome = spot.barIndex == 0;
               final label = isIncome ? 'Revenus' : 'Dépenses';
+              final color = isIncome ? AppColors.income : AppColors.expense;
 
               return LineTooltipItem(
-                '$label\n${_formatTooltipDate(date)}\n${_formatAmount(spot.y)} F',
-                TextStyle(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
+                '$label\n',
+                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                children: [
+                  TextSpan(
+                    text: '${_formatAmount(spot.y)} F CFA',
+                    style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 14),
+                  ),
+                  TextSpan(
+                    text: '\n${_formatTooltipDate(date)}',
+                    style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.normal, fontSize: 10),
+                  ),
+                ],
               );
             }).toList();
           },
         ),
       ),
       lineBarsData: [
-        // Income Line
-        LineChartBarData(
-          spots: _buildSpots(dataPoints, true),
-          isCurved: true,
-          curveSmoothness: 0.3,
-          color: AppColors.income,
-          barWidth: 3,
-          isStrokeCapRound: true,
-          dotData: FlDotData(
-            show: true,
-            getDotPainter: (spot, percent, barData, index) {
-              return FlDotCirclePainter(
-                radius: 4,
-                color: AppColors.income,
-                strokeWidth: 2,
-                strokeColor: AppColors.white,
-              );
-            },
-          ),
-          belowBarData: BarAreaData(
-            show: true,
-            color: AppColors.income.withOpacity(0.1),
-          ),
-        ),
-        // Expense Line
-        LineChartBarData(
-          spots: _buildSpots(dataPoints, false),
-          isCurved: true,
-          curveSmoothness: 0.3,
-          color: AppColors.expense,
-          barWidth: 3,
-          isStrokeCapRound: true,
-          dotData: FlDotData(
-            show: true,
-            getDotPainter: (spot, percent, barData, index) {
-              return FlDotCirclePainter(
-                radius: 4,
-                color: AppColors.expense,
-                strokeWidth: 2,
-                strokeColor: AppColors.white,
-              );
-            },
-          ),
-          belowBarData: BarAreaData(
-            show: true,
-            color: AppColors.expense.withOpacity(0.1),
-          ),
-        ),
+        _buildLineBarData(dataPoints, true),
+        _buildLineBarData(dataPoints, false),
       ],
     );
+  }
+
+  LineChartBarData _buildLineBarData(List<TrendDataPoint> dataPoints, bool isIncome) {
+    final color = isIncome ? AppColors.income : AppColors.expense;
+    return LineChartBarData(
+      spots: _buildSpots(dataPoints, isIncome),
+      isCurved: true,
+      curveSmoothness: 0.4,
+      preventCurveOverShooting: true,
+      color: color,
+      barWidth: 4,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+        show: true,
+        getDotPainter: (spot, percent, barData, index) {
+          return FlDotCirclePainter(
+            radius: 4,
+            color: color,
+            strokeWidth: 2,
+            strokeColor: AppColors.white,
+          );
+        },
+      ),
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.3),
+            color.withOpacity(0.0),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+    );
+  }
+
+  double _calculateBottomInterval(int length) {
+    if (length <= 7) return 1;
+    if (length <= 15) return 2;
+    if (length <= 31) return 5;
+    return (length / 6).floorToDouble();
   }
 
   List<FlSpot> _buildSpots(List<TrendDataPoint> dataPoints, bool isIncome) {
