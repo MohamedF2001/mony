@@ -1,6 +1,7 @@
 // lib/core/services/navigation_service.dart
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'token_service.dart';
 import '../services/user_service.dart';
 
 /// Service pour gérer la logique de navigation de l'app
@@ -9,17 +10,16 @@ class NavigationService {
   static const String _keyIsInited = 'isInited';
 
   final UserService _userService;
+  final TokenService _tokenService = TokenService();
 
   NavigationService(this._userService);
 
   /// Détermine quelle route afficher au démarrage
   Future<String> getInitialRoute() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // 1. Vérifier si l'utilisateur a vu l'onboarding
-    final hasSeenOnboarding = prefs.getBool(_keyHasSeenOnboarding) ?? false;
-    if (!hasSeenOnboarding) {
-      return '/onboarding';
+    // 1. Vérifier si l'utilisateur est connecté (token présent)
+    final hasToken = await _tokenService.hasToken();
+    if (!hasToken) {
+      return '/login';
     }
 
     // 2. Vérifier si l'utilisateur a complété le profil financier
@@ -28,13 +28,7 @@ class NavigationService {
       return '/questionnaire';
     }
 
-    // 3. Vérifier si l'utilisateur a renseigné son nom
-    final hasName = await _userService.hasName();
-    if (!hasName) {
-      return '/name-input';
-    }
-
-    // 4. Tout est complet → Home
+    // 3. Tout est complet → Home
     return '/home';
   }
 

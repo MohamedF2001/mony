@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'features/auth/presentation/screens/login_screen.dart';
-import 'features/auth/presentation/screens/register_screen.dart';
 import 'core/models/user_model_adapter.dart';
 import 'core/routes/app_routes.dart';
 import 'core/services/notification_service.dart';
@@ -20,12 +17,6 @@ import 'features/financial_profile/data/models/profile_model.dart';
 import 'features/financial_profile/data/models/answer_model_adapter.dart';
 import 'features/financial_profile/data/models/profile_model_adapter.dart';
 import 'features/financial_profile/data/models/question_model_adapter.dart';
-import 'features/financial_profile/presentation/screens/questionnaire_screen.dart';
-import 'features/home/presentation/screens/main_navigation_screen.dart';
-import 'features/home/presentation/screens/splash_screen.dart';
-import 'features/onboarding/presentation/screens/name_input_screen.dart';
-import 'features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'features/profile/presentation/screens/user_profile_screen.dart';
 import 'features/transaction/data/models/transaction_model.dart';
 import 'features/transaction/data/models/transaction_model_adapter.dart';
 
@@ -110,16 +101,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialRoute: AppRoutes.splash,
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/onboarding': (context) => const OnboardingScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/questionnaire': (context) => const QuestionnaireScreen(),
-        '/name-input': (context) => const NameInputScreen(),
-        '/profile': (context) => const UserProfileScreen(),
-        '/home': (context) => const MainNavigationScreen(),
-      },
+      routes: AppRoutes.routes,
       debugShowCheckedModeBanner: false,
     );
   }

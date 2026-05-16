@@ -1,6 +1,8 @@
 // lib/core/routes/app_routes.dart
 
 import 'package:flutter/material.dart';
+import 'package:mony/features/auth/presentation/screens/login_screen.dart';
+import 'package:mony/features/auth/presentation/screens/register_screen.dart';
 import 'package:mony/features/home/presentation/screens/splash_screen.dart';
 import 'package:mony/features/transaction/presentation/screens/transaction_list_sreen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -14,6 +16,8 @@ import '../../features/settings/presentation/screens/settings_screen.dart';
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
+  static const String login = '/login';
+  static const String register = '/register';
   static const String setupProfile = '/setup-profile';
   static const String home = '/home';
   static const String addTransaction = '/add-transaction';
@@ -26,6 +30,8 @@ class AppRoutes {
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
         onboarding: (context) => const OnboardingScreen(),
+        login: (context) => const LoginScreen(),
+        register: (context) => const RegisterScreen(),
         //setupProfile: (context) =>  const ProfileSetupScreen(),
         home: (context) => const MainNavigationScreen(),
         addTransaction: (context) => const AddTransactionScreen(),

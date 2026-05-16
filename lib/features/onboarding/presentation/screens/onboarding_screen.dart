@@ -405,8 +405,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     if (!mounted) return;
 
-    // Naviguer vers le questionnaire
-    Navigator.pushReplacementNamed(context, '/questionnaire');
+    // Naviguer vers la connexion
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
