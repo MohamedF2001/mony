@@ -77,7 +77,7 @@ class SyncService {
         try {
           // Send what we have, API will process
           await _apiClient.dio.post('/api/financial-profile/calculate', data: {
-            'type': profile.type,
+            'profileType': profile.profileTypeIndex,
           });
         } catch (e) {
           print('Error syncing financial profile: $e');
