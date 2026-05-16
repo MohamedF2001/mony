@@ -9,7 +9,9 @@ final tokenServiceProvider = Provider<TokenService>((ref) {
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final tokenService = ref.watch(tokenServiceProvider);
-  const baseUrl = 'http://10.0.2.2:3000';
+  //const baseUrl = 'http://10.0.2.2:3000';
+  //const baseUrl = 'http://localhost:3000/';
+  const baseUrl = 'http://10.0.2.2:3000/';
   return ApiClient(baseUrl: baseUrl, tokenService: tokenService);
 });
 

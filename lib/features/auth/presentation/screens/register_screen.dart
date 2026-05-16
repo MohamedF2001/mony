@@ -58,7 +58,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       final authState = ref.read(authProvider);
       if (authState.user != null) {
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/home');
+          // ✅ Après inscription, on va vers le questionnaire
+          Navigator.of(context).pushReplacementNamed('/questionnaire');
         }
       } else if (authState.error != null) {
         if (mounted) {

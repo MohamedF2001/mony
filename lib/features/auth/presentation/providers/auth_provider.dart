@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/api_providers.dart';
+import '../../../../core/providers/user_provider.dart';
 import '../../../../core/services/sync_service.dart';
+import '../../../../core/services/token_service.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/models/auth_user_model.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -14,9 +16,11 @@ final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final remoteDataSource = ref.watch(authRemoteDataSourceProvider);
   final tokenService = ref.watch(tokenServiceProvider);
+  final userService = ref.watch(userServiceProvider);
   return AuthRepositoryImpl(
     remoteDataSource: remoteDataSource,
     tokenService: tokenService,
+    userService: userService,
   );
 });
 

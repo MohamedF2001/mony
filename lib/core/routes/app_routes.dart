@@ -12,6 +12,7 @@ import '../../features/category/presentation/screens/category_screen.dart';
 import '../../features/statistics/presentation/screens/statistics_screen.dart';
 import '../../features/budget/presentation/screens/budget_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/financial_profile/presentation/screens/questionnaire_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String setupProfile = '/setup-profile';
+  static const String questionnaire = '/questionnaire';
   static const String home = '/home';
   static const String addTransaction = '/add-transaction';
   static const String transactionList = '/transaction-list';
@@ -32,7 +34,7 @@ class AppRoutes {
         onboarding: (context) => const OnboardingScreen(),
         login: (context) => const LoginScreen(),
         register: (context) => const RegisterScreen(),
-        //setupProfile: (context) =>  const ProfileSetupScreen(),
+        questionnaire: (context) => const QuestionnaireScreen(),
         home: (context) => const MainNavigationScreen(),
         addTransaction: (context) => const AddTransactionScreen(),
         transactionList: (context) => const TransactionListScreen(),

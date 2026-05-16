@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/services/navigation_service.dart';
+import '../../../../core/services/user_service.dart';
 import '../providers/auth_provider.dart';
 import 'register_screen.dart';
 
@@ -32,7 +34,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final authState = ref.read(authProvider);
       if (authState.user != null) {
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/home');
+          // ✅ Utiliser NavigationService pour décider si on va vers Home ou Questionnaire
+          final navigationService = NavigationService(UserService());
+          final route = await navigationService.getInitialRoute();
+          Navigator.of(context).pushReplacementNamed(route);
         }
       } else if (authState.error != null) {
         if (mounted) {

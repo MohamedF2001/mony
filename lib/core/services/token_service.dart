@@ -34,6 +34,12 @@ class TokenService {
     return null;
   }
 
+  Future<void> removeToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userKey);
+  }
+
   Future<void> removeAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);

@@ -12,6 +12,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/money_card.dart';
 import '../../../../core/widgets/transaction_tile.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
 import '../../../transaction/presentation/screens/add_transaction_screen.dart';
