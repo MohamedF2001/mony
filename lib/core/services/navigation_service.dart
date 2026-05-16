@@ -23,6 +23,7 @@ class NavigationService {
     }
 
     // 2. Vérifier si l'utilisateur a complété le profil financier
+    // On vérifie en local d'abord, mais idéalement on devrait aussi vérifier l'API
     final hasFinancialProfile = await _userService.hasFinancialProfile();
     if (!hasFinancialProfile) {
       return '/questionnaire';

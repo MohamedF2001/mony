@@ -18,8 +18,10 @@ class AuthRepositoryImpl implements AuthRepository {
     final userData = response['data']['user'];
     final token = response['data']['token'];
 
+    final user = AuthUser.fromJson(userData);
     await tokenService.saveToken(token);
-    return AuthUser.fromJson(userData);
+    await tokenService.saveUser(user);
+    return user;
   }
 
   @override
@@ -42,8 +44,10 @@ class AuthRepositoryImpl implements AuthRepository {
     final userData = response['data']['user'];
     final token = response['data']['token'];
 
+    final user = AuthUser.fromJson(userData);
     await tokenService.saveToken(token);
-    return AuthUser.fromJson(userData);
+    await tokenService.saveUser(user);
+    return user;
   }
 
   @override

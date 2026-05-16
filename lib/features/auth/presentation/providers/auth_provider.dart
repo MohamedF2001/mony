@@ -39,8 +39,18 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository repository;
   final SyncService syncService;
+  final TokenService tokenService;
 
-  AuthNotifier(this.repository, this.syncService) : super(AuthState());
+  AuthNotifier(this.repository, this.syncService, this.tokenService) : super(AuthState()) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    final user = await tokenService.getUser();
+    if (user != null) {
+      state = state.copyWith(user: user);
+    }
+  }
 
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -89,5 +99,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   final syncService = ref.watch(syncServiceProvider);
-  return AuthNotifier(repository, syncService);
+  final tokenService = ref.watch(tokenServiceProvider);
+  return AuthNotifier(repository, syncService, tokenService);
 });

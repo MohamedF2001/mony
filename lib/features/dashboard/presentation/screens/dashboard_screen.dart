@@ -40,7 +40,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: userAsync.when(
-          data: (user) => Text('Bonjour ${user?.name ?? ""}'), // ✨ NOUVEAU
+          data: (user) {
+            final authUser = ref.watch(authProvider).user;
+            final name = authUser != null ? '${authUser.firstName}' : (user?.name ?? "");
+            return Text('Bonjour $name 👋');
+          },
           loading: () => const Text('Chargement...'),
           error: (_, __) => const Text('Mony'),
         ),

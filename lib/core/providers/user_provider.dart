@@ -4,27 +4,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/user_service.dart';
 import '../entities/user.dart';
 import '../../features/financial_profile/domain/entities/financial_profile.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
 
 // Provider du service
 final userServiceProvider = Provider((ref) => UserService());
 
 // Provider de l'état utilisateur
 final userProvider = StateNotifierProvider<UserNotifier, AsyncValue<User?>>((ref) {
-  return UserNotifier(ref.read(userServiceProvider));
+  return UserNotifier(ref.read(userServiceProvider), ref);
 });
 
 /// Notifier pour gérer l'état de l'utilisateur
 class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   final UserService _userService;
+  final Ref _ref;
 
-  UserNotifier(this._userService) : super(const AsyncValue.loading()) {
+  UserNotifier(this._userService, this._ref) : super(const AsyncValue.loading()) {
     loadUser();
   }
 
-  /// Charge l'utilisateur depuis Hive
+  /// Charge l'utilisateur depuis Hive ou API
   Future<void> loadUser() async {
     state = const AsyncValue.loading();
     try {
+      // Priorité à l'utilisateur authentifié
+      final authState = _ref.read(authProvider);
+      if (authState.user != null) {
+        final authUser = authState.user!;
+        state = AsyncValue.data(User(
+          id: authUser.id,
+          name: '${authUser.firstName} ${authUser.lastName}',
+          createdAt: authUser.createdAt,
+        ));
+        return;
+      }
+
       final user = await _userService.getCurrentUser();
       state = AsyncValue.data(user);
     } catch (e, stack) {
