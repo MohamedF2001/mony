@@ -113,8 +113,9 @@ final categoryStatisticsProvider = Provider<AsyncValue<Map<String, double>>>((re
 
   for (var transaction in transactions) {
     if (transaction.isExpense) {
-      categoryTotals[transaction.category] =
-          (categoryTotals[transaction.category] ?? 0) + transaction.amount;
+      final categoryName = transaction.displayCategoryName;
+      categoryTotals[categoryName] =
+          (categoryTotals[categoryName] ?? 0) + transaction.amount;
     }
   }
 
@@ -175,7 +176,9 @@ final categoryTrendProvider = Provider<AsyncValue<List<CategoryTrendData>>>((ref
     }
 
     if (!grouped.containsKey(key)) grouped[key] = {'_date': date.millisecondsSinceEpoch.toDouble()};
-    grouped[key]![t.category] = (grouped[key]![t.category] ?? 0) + t.amount;
+    
+    final categoryName = t.displayCategoryName;
+    grouped[key]![categoryName] = (grouped[key]![categoryName] ?? 0) + t.amount;
   }
 
   final sortedKeys = grouped.keys.toList()..sort();

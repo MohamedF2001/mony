@@ -30,14 +30,11 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
   @override
   Future<TransactionModel> addTransaction(TransactionModel transaction) async {
     final response = await apiClient.dio.post('/api/transactions', data: {
-      'title': transaction.description?.isNotEmpty == true
-          ? transaction.description
-          : transaction.category,
       'amount': transaction.amount,
       'type': transaction.type == 0 ? 'income' : 'expense',
-      'categoryName': transaction.category,
+      'category': transaction.category, // Correction : clé 'category' et doit être l'ID
       'transactionDate': transaction.date.toIso8601String(),
-      'description': transaction.description,
+      'description': transaction.description ?? "",
     });
     return TransactionModel.fromJson(
       Map<String, dynamic>.from(response.data['data']['transaction'] as Map),
@@ -47,14 +44,11 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
   @override
   Future<TransactionModel> updateTransaction(TransactionModel transaction) async {
     final response = await apiClient.dio.put('/api/transactions/${transaction.id}', data: {
-      'title': transaction.description?.isNotEmpty == true
-          ? transaction.description
-          : transaction.category,
       'amount': transaction.amount,
       'type': transaction.type == 0 ? 'income' : 'expense',
-      'categoryName': transaction.category,
+      'category': transaction.category, // Correction : clé 'category'
       'transactionDate': transaction.date.toIso8601String(),
-      'description': transaction.description,
+      'description': transaction.description ?? "",
     });
     return TransactionModel.fromJson(
       Map<String, dynamic>.from(response.data['data']['transaction'] as Map),

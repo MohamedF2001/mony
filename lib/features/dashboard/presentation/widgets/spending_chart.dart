@@ -20,14 +20,15 @@ class SpendingChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Group transactions by category
+    // Group transactions by category name
     final Map<String, double> categoryTotals = {};
     double totalExpense = 0;
 
     for (var transaction in transactions) {
       if (transaction.isExpense) {
-        categoryTotals[transaction.category] =
-            (categoryTotals[transaction.category] ?? 0) + transaction.amount;
+        final categoryName = transaction.displayCategoryName;
+        categoryTotals[categoryName] =
+            (categoryTotals[categoryName] ?? 0) + transaction.amount;
         totalExpense += transaction.amount;
       }
     }

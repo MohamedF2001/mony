@@ -27,7 +27,7 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   @override
   Future<BudgetModel> addBudget(BudgetModel budget) async {
     final response = await apiClient.dio.post('/api/budgets', data: {
-      'categoryName': budget.category,
+      'category': budget.category, // Correction : clé 'category' attendue par le backend
       'amount': budget.amount,
       'period': budget.period == 0 ? 'monthly' : 'yearly',
       'startDate': budget.startDate.toIso8601String(),
@@ -42,7 +42,7 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
   @override
   Future<BudgetModel> updateBudget(BudgetModel budget) async {
     final response = await apiClient.dio.put('/api/budgets/${budget.id}', data: {
-      'categoryName': budget.category,
+      'category': budget.category, // Correction : clé 'category' attendue par le backend
       'amount': budget.amount,
       'period': budget.period == 0 ? 'monthly' : 'yearly',
       'startDate': budget.startDate.toIso8601String(),

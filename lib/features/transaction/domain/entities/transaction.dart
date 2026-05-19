@@ -1,6 +1,7 @@
 // lib/features/transaction/domain/entities/transaction.dart
 
 import 'package:equatable/equatable.dart';
+import 'package:mony/features/category/domain/entities/category.dart';
 
 enum TransactionType {
   income,
@@ -10,7 +11,9 @@ enum TransactionType {
 class Transaction extends Equatable {
   final String? id;
   final DateTime date;
-  final String category;
+  final String category; // ID de la catégorie
+  final Category? categoryObject; // L'objet catégorie complet
+  final String? categoryName; // Nom pour l'affichage (fallback)
   final double amount;
   final TransactionType type;
   final String? description;
@@ -21,6 +24,8 @@ class Transaction extends Equatable {
     this.id,
     required this.date,
     required this.category,
+    this.categoryObject,
+    this.categoryName,
     required this.amount,
     required this.type,
     this.description,
@@ -31,10 +36,14 @@ class Transaction extends Equatable {
   bool get isIncome => type == TransactionType.income;
   bool get isExpense => type == TransactionType.expense;
 
+  String get displayCategoryName => categoryObject?.name ?? categoryName ?? 'Sans catégorie';
+
   Transaction copyWith({
     String? id,
     DateTime? date,
     String? category,
+    Category? categoryObject,
+    String? categoryName,
     double? amount,
     TransactionType? type,
     String? description,
@@ -45,6 +54,8 @@ class Transaction extends Equatable {
       id: id ?? this.id,
       date: date ?? this.date,
       category: category ?? this.category,
+      categoryObject: categoryObject ?? this.categoryObject,
+      categoryName: categoryName ?? this.categoryName,
       amount: amount ?? this.amount,
       type: type ?? this.type,
       description: description ?? this.description,
@@ -58,6 +69,8 @@ class Transaction extends Equatable {
         id,
         date,
         category,
+        categoryObject,
+        categoryName,
         amount,
         type,
         description,
