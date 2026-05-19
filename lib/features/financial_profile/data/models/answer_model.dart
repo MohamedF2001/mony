@@ -1,7 +1,6 @@
 /*
 // lib/features/financial_profile/data/models/answer_model.dart
 
-import 'package:hive/hive.dart';
 import '../../domain/entities/answer.dart';
 
 part 'answer_model.g.dart';
@@ -78,5 +77,14 @@ class AnswerModel {
       freeText: freeText,
       answeredAt: answeredAt,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'questionId': questionId,
+      'selectedChoiceId': selectedChoiceId,
+      'freeText': freeText,
+      'answeredAt': answeredAt.toIso8601String(),
+    };
   }
 }

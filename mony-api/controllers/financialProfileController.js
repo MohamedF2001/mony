@@ -17,22 +17,29 @@ export const getQuestions = async (req, res) => {
 
 export const calculateAndSaveProfile = async (req, res) => {
   try {
-    const { answers } = req.body;
+    const { answers, type, traitScores, confidenceScore, aiFeedback } = req.body;
 
     if (!answers || !Array.isArray(answers) || answers.length === 0) {
       return res.status(400).json({ success: false, message: "Réponses manquantes" });
     }
 
-    const questions = await FinancialQuestion.find();
-    const traitScores = calculateTraitScores(answers, questions);
-    const profileType = determineProfileType(traitScores);
-    const confidenceScore = calculateConfidenceScore(answers, traitScores);
+    let finalTraitScores = traitScores;
+    let profileType = type;
+    let finalConfidenceScore = confidenceScore;
+
+    if (!finalTraitScores || !profileType || finalConfidenceScore === undefined) {
+      const questions = await FinancialQuestion.find();
+      finalTraitScores = calculateTraitScores(answers, questions);
+      profileType = determineProfileType(finalTraitScores);
+      finalConfidenceScore = calculateConfidenceScore(answers, finalTraitScores);
+    }
 
     const profileData = {
       user: req.user._id,
       type: profileType,
-      traitScores,
-      confidenceScore,
+      traitScores: finalTraitScores,
+      confidenceScore: finalConfidenceScore,
+      aiFeedback,
       answers,
     };
 

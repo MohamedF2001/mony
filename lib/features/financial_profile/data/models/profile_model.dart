@@ -130,4 +130,48 @@ class FinancialProfileModel {
       updatedAt: updatedAt,
     );
   }
+
+  factory FinancialProfileModel.fromJson(Map<String, dynamic> json) {
+    final traitScores = Map<String, dynamic>.from(
+      (json['traitScores'] as Map?) ?? const {},
+    );
+    final traitScoresMap = <int, double>{};
+
+    for (final trait in FinancialTraitType.values) {
+      final value = traitScores[trait.name];
+      traitScoresMap[trait.index] = (value as num? ?? 50).toDouble();
+    }
+
+    final typeName = json['type']?.toString() ?? ProfileType.balancedAware.name;
+    final typeIndex = ProfileType.values.indexWhere((type) => type.name == typeName);
+
+    return FinancialProfileModel(
+      id: (json['id'] ?? json['_id']).toString(),
+      profileTypeIndex:
+          typeIndex >= 0 ? typeIndex : ProfileType.balancedAware.index,
+      traitScoresMap: traitScoresMap,
+      confidenceScore: (json['confidenceScore'] as num? ?? 0).toDouble(),
+      aiFeedback: json['aiFeedback']?.toString(),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'].toString())
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toApiJson({List<Map<String, dynamic>> answers = const []}) {
+    final traitScores = <String, double>{};
+    traitScoresMap.forEach((traitIndex, score) {
+      traitScores[FinancialTraitType.values[traitIndex].name] = score;
+    });
+
+    return {
+      'type': ProfileType.values[profileTypeIndex].name,
+      'traitScores': traitScores,
+      'confidenceScore': confidenceScore,
+      'aiFeedback': aiFeedback,
+      'answers': answers,
+    };
+  }
 }

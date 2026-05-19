@@ -1,11 +1,10 @@
 // lib/features/budget/presentation/providers/budget_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import '../../../../core/providers/api_providers.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
-import '../../data/datasources/budget_local_datasource.dart';
-import '../../data/models/budget_model.dart';
-import '../../data/repositories/budget_repository_impl.dart';
+import '../../data/datasources/budget_remote_datasource.dart';
+import '../../data/repositories/budget_api_repository_impl.dart';
 import '../../domain/entities/budget.dart';
 import '../../domain/repositories/budget_repository.dart';
 import '../../domain/usecases/add_budget.dart';
@@ -13,20 +12,15 @@ import '../../domain/usecases/delete_budget.dart';
 import '../../domain/usecases/get_budgets.dart';
 import '../../domain/usecases/update_budget.dart';
 
-// Data Source Provider
-final budgetBoxProvider = Provider<Box<BudgetModel>>((ref) {
-  return Hive.box<BudgetModel>('budgets');
-});
-
-final budgetLocalDataSourceProvider = Provider<BudgetLocalDataSource>((ref) {
-  final box = ref.watch(budgetBoxProvider);
-  return BudgetLocalDataSourceImpl(box);
+final budgetLocalDataSourceProvider = Provider<BudgetRemoteDataSource>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return BudgetRemoteDataSourceImpl(apiClient);
 });
 
 // Repository Provider
 final budgetRepositoryProvider = Provider<BudgetRepository>((ref) {
   final dataSource = ref.watch(budgetLocalDataSourceProvider);
-  return BudgetRepositoryImpl(dataSource);
+  return BudgetApiRepositoryImpl(dataSource);
 });
 
 // Use Cases Providers

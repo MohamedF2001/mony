@@ -32,7 +32,7 @@ const financialProfileSchema = new mongoose.Schema(
     aiFeedback: String,
     answers: [
       {
-        questionId: { type: mongoose.Schema.Types.ObjectId, ref: "FinancialQuestion" },
+        questionId: String,
         selectedChoiceId: String,
         freeText: String,
         answeredAt: { type: Date, default: Date.now },

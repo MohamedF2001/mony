@@ -162,17 +162,23 @@ class BudgetModel {
   }
 
   factory BudgetModel.fromJson(Map<String, dynamic> json) {
+    final category = json['category'];
+    final categoryName = category is Map<String, dynamic>
+        ? category['name']?.toString()
+        : category?.toString();
+
     return BudgetModel(
-      id: json['id'] as String,
-      category: json['category'] as String,
+      id: (json['id'] ?? json['_id']).toString(),
+      category: categoryName ?? json['categoryName']?.toString() ?? '',
       amount: (json['amount'] as num).toDouble(),
       period: json['period'] == 'monthly' ? 0 : 1,
-      startDate: DateTime.parse(json['startDate'] as String),
+      startDate: DateTime.parse(json['startDate'].toString()),
       endDate: json['endDate'] != null
-          ? DateTime.parse(json['endDate'] as String)
+          ? DateTime.parse(json['endDate'].toString())
           : null,
       isActive: json['isActive'] as bool? ?? true,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
     );
   }
 }

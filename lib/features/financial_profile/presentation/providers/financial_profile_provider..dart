@@ -1,6 +1,7 @@
 // lib/features/financial_profile/presentation/providers/financial_profile_provider.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/api_providers.dart';
 import '../../domain/entities/question.dart';
 import '../../domain/entities/answer.dart';
 import '../../domain/entities/financial_profile.dart';
@@ -9,6 +10,7 @@ import '../../domain/usecases/get_questions.dart';
 import '../../domain/usecases/calculate_profile.dart';
 import '../../domain/usecases/save_profile.dart';
 import '../../data/datasources/financial_profile_local_datasource.dart';
+import '../../data/datasources/financial_profile_remote_datasource.dart';
 import '../../data/datasources/gemini_profile_service.dart';
 import '../../data/repositories/financial_profile_repository_impl.dart';
 
@@ -22,9 +24,14 @@ final geminiServiceProvider = Provider((ref) {
   return GeminiProfileService();
 });
 
+final financialProfileRemoteDataSourceProvider = Provider((ref) {
+  return FinancialProfileRemoteDataSourceImpl(ref.read(apiClientProvider));
+});
+
 final financialProfileRepositoryProvider = Provider((ref) {
   return FinancialProfileRepositoryImpl(
     localDataSource: ref.read(localDataSourceProvider),
+    remoteDataSource: ref.read(financialProfileRemoteDataSourceProvider),
     geminiService: ref.read(geminiServiceProvider),
   );
 });
@@ -261,7 +268,10 @@ class QuestionnaireNotifier extends StateNotifier<QuestionnaireState> {
   Future<bool> saveProfileToStorage() async {
     if (state.calculatedProfile == null) return false;
 
-    final result = await saveProfile(state.calculatedProfile!);
+    final result = await saveProfile(
+      state.calculatedProfile!,
+      answers: state.answers.values.toList(),
+    );
 
     return result.fold(
           (failure) => false,

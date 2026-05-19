@@ -9,15 +9,19 @@ import '../../domain/entities/financial_trait.dart';
 import '../../domain/entities/profile_validation_result.dart';
 import '../../domain/repositories/financial_profile_repository.dart';
 import '../datasources/financial_profile_local_datasource.dart';
+import '../datasources/financial_profile_remote_datasource.dart';
 import '../datasources/gemini_profile_service.dart';
+import '../models/answer_model.dart';
 import '../models/profile_model.dart';
 
 class FinancialProfileRepositoryImpl implements FinancialProfileRepository {
   final FinancialProfileLocalDataSource localDataSource;
+  final FinancialProfileRemoteDataSource? remoteDataSource;
   final GeminiProfileService geminiService;
 
   FinancialProfileRepositoryImpl({
     required this.localDataSource,
+    this.remoteDataSource,
     required this.geminiService,
   });
 
@@ -133,20 +137,34 @@ class FinancialProfileRepositoryImpl implements FinancialProfileRepository {
 
   @override
   Future<Either<Failure, FinancialProfile>> saveProfile(
-      FinancialProfile profile,
-      ) async {
+    FinancialProfile profile, {
+    List<Answer> answers = const [],
+  }) async {
     try {
       final profileModel = FinancialProfileModel.fromEntity(profile);
+      if (remoteDataSource != null) {
+        final savedProfile = await remoteDataSource!.saveProfile(
+          profile: profileModel,
+          answers: answers.map(AnswerModel.fromEntity).toList(),
+        );
+        return Right(savedProfile.toEntity());
+      }
+
       await localDataSource.saveProfile(profileModel);
       return Right(profileModel.toEntity());
     } catch (e) {
-      return Left(CacheFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, FinancialProfile?>> getSavedProfile() async {
     try {
+      if (remoteDataSource != null) {
+        final profileModel = await remoteDataSource!.getSavedProfile();
+        return Right(profileModel?.toEntity());
+      }
+
       final profileModel = await localDataSource.getSavedProfile();
       if (profileModel == null) {
         return const Right(null);

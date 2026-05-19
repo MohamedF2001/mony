@@ -1,11 +1,10 @@
 // lib/features/category/presentation/providers/category_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mony/features/category/data/datasources/category_local_datasources.dart';
-import 'package:mony/features/category/data/repositoires/category_repositpry_impl.dart';
+import '../../../../core/providers/api_providers.dart';
+import 'package:mony/features/category/data/datasources/category_remote_datasource.dart';
+import 'package:mony/features/category/data/repositoires/category_api_repository_impl.dart';
 import '../../../transaction/domain/entities/transaction.dart';
-import '../../data/models/category_model.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/usecases/add_category.dart';
@@ -13,21 +12,16 @@ import '../../domain/usecases/delete_category.dart';
 import '../../domain/usecases/get_categories.dart';
 import '../../domain/usecases/update_category.dart';
 
-// Data Source Provider
-final categoryBoxProvider = Provider<Box<CategoryModel>>((ref) {
-  return Hive.box<CategoryModel>('categories');
-});
-
 final categoryLocalDataSourceProvider =
-    Provider<CategoryLocalDataSource>((ref) {
-  final box = ref.watch(categoryBoxProvider);
-  return CategoryLocalDataSourceImpl(box);
+    Provider<CategoryRemoteDataSource>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return CategoryRemoteDataSourceImpl(apiClient);
 });
 
 // Repository Provider
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   final dataSource = ref.watch(categoryLocalDataSourceProvider);
-  return CategoryRepositoryImpl(dataSource);
+  return CategoryApiRepositoryImpl(dataSource);
 });
 
 // Use Cases Providers

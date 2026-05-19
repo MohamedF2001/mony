@@ -48,20 +48,36 @@ export const getTransactions = async (req, res) => {
 
 export const createTransaction = async (req, res) => {
   try {
-    const { title, amount, type, category, description, transactionDate } =
+    const { title, amount, type, category, categoryName, description, transactionDate } =
       req.body;
 
-    if (!title || !amount || !type || !category) {
+    if (!title || !amount || !type || (!category && !categoryName)) {
       return res.status(400).json({
         success: false,
         message: "Titre, montant, type et catégorie sont obligatoires.",
       });
     }
 
-    const cat = await Category.findOne({
-      _id: category,
-      user: req.user._id,
-    });
+    let cat = null;
+    if (category) {
+      cat = await Category.findOne({
+        _id: category,
+        user: req.user._id,
+      });
+    } else {
+      cat = await Category.findOneAndUpdate(
+        { name: categoryName.trim(), user: req.user._id },
+        {
+          $setOnInsert: {
+            name: categoryName.trim(),
+            type,
+            color: type === "income" ? "#22c55e" : "#ef4444",
+            user: req.user._id,
+          },
+        },
+        { upsert: true, new: true, runValidators: true }
+      );
+    }
 
     if (!cat) {
       return res.status(404).json({
@@ -74,7 +90,7 @@ export const createTransaction = async (req, res) => {
       title,
       amount,
       type,
-      category,
+      category: cat._id,
       description: description || "",
       transactionDate: transactionDate || Date.now(),
       user: req.user._id,
@@ -98,7 +114,7 @@ export const createTransaction = async (req, res) => {
 export const updateTransaction = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, amount, type, category, description, transactionDate } =
+    const { title, amount, type, category, categoryName, description, transactionDate } =
       req.body;
 
     const transaction = await Transaction.findOne({
@@ -113,8 +129,9 @@ export const updateTransaction = async (req, res) => {
       });
     }
 
+    let cat = null;
     if (category) {
-      const cat = await Category.findOne({
+      cat = await Category.findOne({
         _id: category,
         user: req.user._id,
       });
@@ -124,13 +141,26 @@ export const updateTransaction = async (req, res) => {
           message: "Catégorie introuvable ou non autorisée.",
         });
       }
+    } else if (categoryName) {
+      cat = await Category.findOneAndUpdate(
+        { name: categoryName.trim(), user: req.user._id },
+        {
+          $setOnInsert: {
+            name: categoryName.trim(),
+            type: type || transaction.type,
+            color: (type || transaction.type) === "income" ? "#22c55e" : "#ef4444",
+            user: req.user._id,
+          },
+        },
+        { upsert: true, new: true, runValidators: true }
+      );
     }
 
     const updates = {};
     if (title) updates.title = title;
     if (amount) updates.amount = amount;
     if (type) updates.type = type;
-    if (category) updates.category = category;
+    if (cat) updates.category = cat._id;
     if (description !== undefined) updates.description = description;
     if (transactionDate) updates.transactionDate = transactionDate;
 

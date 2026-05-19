@@ -1,4 +1,5 @@
 import Budget from "../models/Budget.js";
+import Category from "../models/Category.js";
 
 export const getBudgets = async (req, res) => {
   try {
@@ -19,9 +20,9 @@ export const getBudgets = async (req, res) => {
 
 export const createBudget = async (req, res) => {
   try {
-    const { category, amount, period, startDate, endDate } = req.body;
+    const { category, categoryName, amount, period, startDate, endDate, isActive } = req.body;
 
-    if (!category || !amount) {
+    if ((!category && !categoryName) || !amount) {
       return res.status(400).json({
         success: false,
         message: "La catégorie et le montant sont obligatoires.",
@@ -29,7 +30,23 @@ export const createBudget = async (req, res) => {
     }
 
     // Vérifier que la catégorie appartient bien à l'utilisateur
-    const categoryExists = await Category.findOne({ _id: category, user: req.user._id });
+    let categoryExists = null;
+    if (category) {
+      categoryExists = await Category.findOne({ _id: category, user: req.user._id });
+    } else {
+      categoryExists = await Category.findOneAndUpdate(
+        { name: categoryName.trim(), user: req.user._id },
+        {
+          $setOnInsert: {
+            name: categoryName.trim(),
+            type: "expense",
+            color: "#ef4444",
+            user: req.user._id,
+          },
+        },
+        { upsert: true, new: true, runValidators: true }
+      );
+    }
     if (!categoryExists) {
       return res.status(404).json({
         success: false,
@@ -38,13 +55,16 @@ export const createBudget = async (req, res) => {
     }
 
     const budget = await Budget.create({
-      category,
+      category: categoryExists._id,
       amount,
       period: period || "monthly",
       startDate: startDate || Date.now(),
       endDate,
+      isActive: isActive ?? true,
       user: req.user._id,
     });
+
+    await budget.populate("category");
 
     res.status(201).json({
       success: true,
@@ -60,7 +80,25 @@ export const createBudget = async (req, res) => {
 export const updateBudget = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const { category, categoryName, ...updates } = req.body;
+
+    if (categoryName) {
+      const categoryDoc = await Category.findOneAndUpdate(
+        { name: categoryName.trim(), user: req.user._id },
+        {
+          $setOnInsert: {
+            name: categoryName.trim(),
+            type: "expense",
+            color: "#ef4444",
+            user: req.user._id,
+          },
+        },
+        { upsert: true, new: true, runValidators: true }
+      );
+      updates.category = categoryDoc._id;
+    } else if (category) {
+      updates.category = category;
+    }
 
     const budget = await Budget.findOneAndUpdate(
       { _id: id, user: req.user._id },

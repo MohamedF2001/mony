@@ -1,6 +1,7 @@
 // lib/core/services/navigation_service.dart
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'api_client.dart';
 import 'token_service.dart';
 import '../services/user_service.dart';
 
@@ -24,6 +25,17 @@ class NavigationService {
 
     // 2. Vérifier si l'utilisateur a complété le profil financier
     // On vérifie en local d'abord, mais idéalement on devrait aussi vérifier l'API
+    try {
+      final apiClient = ApiClient(
+        baseUrl: 'http://10.0.2.2:3000/',
+        tokenService: _tokenService,
+      );
+      await apiClient.dio.get('/api/financial-profile');
+      return '/home';
+    } catch (_) {
+      // Fallback local pour les anciens profils non synchronises.
+    }
+
     final hasFinancialProfile = await _userService.hasFinancialProfile();
     if (!hasFinancialProfile) {
       return '/questionnaire';

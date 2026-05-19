@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/user_service.dart';
 import '../entities/user.dart';
 import '../../features/financial_profile/domain/entities/financial_profile.dart';
+import '../../features/financial_profile/data/models/profile_model.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import 'api_providers.dart';
 
 // Provider du service
 final userServiceProvider = Provider((ref) => UserService());
@@ -31,9 +33,21 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       final authState = _ref.read(authProvider);
       if (authState.user != null) {
         final authUser = authState.user!;
+        FinancialProfile? financialProfile;
+        try {
+          final apiClient = _ref.read(apiClientProvider);
+          final response = await apiClient.dio.get('/api/financial-profile');
+          financialProfile = FinancialProfileModel.fromJson(
+            Map<String, dynamic>.from(response.data['data']['profile'] as Map),
+          ).toEntity();
+        } catch (_) {
+          financialProfile = null;
+        }
+
         state = AsyncValue.data(User(
           id: authUser.id,
           name: '${authUser.firstName} ${authUser.lastName}',
+          financialProfile: financialProfile,
           createdAt: authUser.createdAt,
         ));
         return;

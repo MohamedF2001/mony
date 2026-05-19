@@ -30,8 +30,9 @@ abstract class FinancialProfileRepository {
 
   /// Sauvegarde le profil finalisé
   Future<Either<Failure, FinancialProfile>> saveProfile(
-      FinancialProfile profile,
-      );
+    FinancialProfile profile, {
+    List<Answer> answers = const [],
+  });
 
   /// Récupère le profil sauvegardé de l'utilisateur
   Future<Either<Failure, FinancialProfile?>> getSavedProfile();
