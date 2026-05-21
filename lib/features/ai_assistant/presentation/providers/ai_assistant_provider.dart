@@ -104,6 +104,7 @@ class AiAssistantNotifier extends StateNotifier<AiAssistantState> {
     required double totalIncome,
     required double totalExpense,
     required Map<String, double> categoryBreakdown,
+    String currency = 'F CFA',
   }) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
@@ -478,6 +479,7 @@ class AiAssistantNotifier extends StateNotifier<AiAssistantState> {
       totalIncome: totalIncome,
       totalExpense: totalExpense,
       categoryBreakdown: categoryBreakdown,
+      currency: currency,
     )
         .listen(
           (chunk) {

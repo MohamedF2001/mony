@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/services/navigation_service.dart';
 import '../../../../core/services/user_service.dart';
 import '../providers/auth_provider.dart';
@@ -79,10 +80,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Bienvenue sur Mony',
+                Text(
+                  AppLocalizations.of(context)!.welcome,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
@@ -90,10 +91,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Connectez-vous pour gérer vos finances',
+                Text(
+                  AppLocalizations.of(context)!.loginToManage,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
                     fontFamily: 'Poppins',
@@ -103,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: AppLocalizations.of(context)!.email,
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -115,8 +116,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Veuillez entrer votre email';
-                    if (!value.contains('@')) return 'Veuillez entrer un email valide';
+                    if (value == null || value.isEmpty)
+                      return AppLocalizations.of(context)!.enterEmail;
+                    if (!value.contains('@'))
+                      return AppLocalizations.of(context)!.enterValidEmail;
                     return null;
                   },
                 ),
@@ -124,7 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
-                    labelText: 'Mot de passe',
+                    labelText: AppLocalizations.of(context)!.password,
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -136,8 +139,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   obscureText: true,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Veuillez entrer votre mot de passe';
-                    if (value.length < 6) return 'Le mot de passe doit faire au moins 6 caractères';
+                    if (value == null || value.isEmpty)
+                      return AppLocalizations.of(context)!.enterPassword;
+                    if (value.length < 6)
+                      return AppLocalizations.of(context)!.passwordTooShort;
                     return null;
                   },
                 ),
@@ -162,9 +167,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text(
-                          'Se connecter',
-                          style: TextStyle(
+                      : Text(
+                          AppLocalizations.of(context)!.login,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins',
@@ -175,19 +180,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Pas encore de compte ? ',
-                      style: TextStyle(color: Colors.black54, fontFamily: 'Poppins'),
+                    Text(
+                      AppLocalizations.of(context)!.noAccount,
+                      style: const TextStyle(
+                          color: Colors.black54, fontFamily: 'Poppins'),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const RegisterScreen()),
                         );
                       },
-                      child: const Text(
-                        'S\'inscrire',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.register,
+                        style: const TextStyle(
                           color: Color(0xFF2D6CFF),
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',

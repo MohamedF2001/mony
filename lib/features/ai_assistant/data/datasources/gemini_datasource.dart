@@ -57,12 +57,12 @@ class GeminiDataSource {
     try {
       final context = '''
 Analyse mes finances:
-- Revenus totaux: $totalIncome F CFA
-- Dépenses totales: $totalExpense F CFA
-- Solde: ${totalIncome - totalExpense} F CFA
+- Revenus totaux: $totalIncome $currency
+- Dépenses totales: $totalExpense $currency
+- Solde: ${totalIncome - totalExpense} $currency
 
 Répartition des dépenses par catégorie:
-${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} F CFA').join('\n')}
+${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} $currency').join('\n')}
 
 Donne-moi une analyse détaillée et des conseils personnalisés pour améliorer ma gestion financière.
 ''';
@@ -193,12 +193,12 @@ class GeminiDataSource {
   }) async {
     final context = '''
 Analyse mes finances:
-- Revenus totaux: $totalIncome F CFA
-- Dépenses totales: $totalExpense F CFA
-- Solde: ${totalIncome - totalExpense} F CFA
+- Revenus totaux: $totalIncome $currency
+- Dépenses totales: $totalExpense $currency
+- Solde: ${totalIncome - totalExpense} $currency
 
 Répartition des dépenses par catégorie:
-${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} F CFA').join('\n')}
+${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} $currency').join('\n')}
 
 Donne-moi une analyse détaillée avec :
 1. Conseils pour économiser
@@ -333,12 +333,12 @@ class GeminiDataSource {
   }) async {
     final prompt = '''
 Analyse mes finances :
-- Revenus totaux: $totalIncome F CFA
-- Dépenses totales: $totalExpense F CFA
-- Solde: ${totalIncome - totalExpense} F CFA
+- Revenus totaux: $totalIncome $currency
+- Dépenses totales: $totalExpense $currency
+- Solde: ${totalIncome - totalExpense} $currency
 
 Répartition des dépenses par catégorie:
-${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} F CFA').join('\n')}
+${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} $currency').join('\n')}
 
 Donne-moi une analyse détaillée avec conseils personnalisés pour améliorer ma gestion financière.
 ''';
@@ -488,15 +488,16 @@ class GeminiDataSource {
     required double totalIncome,
     required double totalExpense,
     required Map<String, double> categoryBreakdown,
+    String currency = 'F CFA',
   }) async* {
     final context = '''
 Analyse mes finances:
-- Revenus totaux: $totalIncome F CFA
-- Dépenses totales: $totalExpense F CFA
-- Solde: ${totalIncome - totalExpense} F CFA
+- Revenus totaux: $totalIncome $currency
+- Dépenses totales: $totalExpense $currency
+- Solde: ${totalIncome - totalExpense} $currency
 
 Répartition des dépenses par catégorie:
-${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} F CFA').join('\n')}
+${categoryBreakdown.entries.map((e) => '- ${e.key}: ${e.value} $currency').join('\n')}
 
 Donne-moi une analyse détaillée et des conseils personnalisés pour améliorer ma gestion financière.
 ''';

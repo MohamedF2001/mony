@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import 'package:mony/features/category/presentation/widgets/add_category_dialog.dart';
+import '../../../settings/presentation/providers/app_settings_provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/widgets/custom_button.dart';
@@ -58,8 +60,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-            widget.transaction != null ? 'Modifier' : 'Nouvelle transaction'),
+        title: Text(widget.transaction != null
+            ? AppLocalizations.of(context)!.edit
+            : AppLocalizations.of(context)!.newTransaction),
         actions: [
           if (widget.transaction != null)
             IconButton(
@@ -104,7 +107,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Montant',
+                    AppLocalizations.of(context)!.amount,
                     style: AppTypography.textTheme.titleSmall?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -125,10 +128,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ),
                     decoration: InputDecoration(
                       hintText: '0',
-                      hintStyle: AppTypography.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.normal
-                      ),
-                      suffixText: 'F CFA ',
+                      hintStyle: AppTypography.textTheme.titleLarge
+                          ?.copyWith(fontWeight: FontWeight.normal),
+                      suffixText: '${ref.watch(appSettingsProvider).currency} ',
                       suffixStyle: AppTypography.textTheme.titleLarge,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -136,11 +138,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Entrez un montant';
+                        return AppLocalizations.of(context)!.enterAmount;
                       }
                       final amount = double.tryParse(value);
                       if (amount == null || amount <= 0) {
-                        return 'Montant invalide';
+                        return AppLocalizations.of(context)!.invalidAmount;
                       }
                       return null;
                     },
@@ -173,12 +175,13 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Catégorie',
+                          AppLocalizations.of(context)!.category,
                           style: AppTypography.textTheme.titleSmall,
                         ),
                         TextButton(
                           onPressed: _showAddCategoryDialog,
-                          child: const Text('+ Nouvelle'),
+                          child: Text(
+                              AppLocalizations.of(context)!.newCategoryShort),
                         ),
                       ],
                     ),
@@ -220,7 +223,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ),
                     error: (error, _) => Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text('Erreur: $error'),
+                      child: Text('${AppLocalizations.of(context)!.error}: $error'),
                     ),
                   ),
                 ],
@@ -254,7 +257,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     color: AppColors.primary,
                   ),
                 ),
-                title: const Text('Date'),
+                title: Text(AppLocalizations.of(context)!.date),
                 subtitle: Text(_selectedDate.toFormattedDateLong()),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: _selectDate,
@@ -281,7 +284,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Description (optionnel)',
+                    '${AppLocalizations.of(context)!.description} (${AppLocalizations.of(context)!.optional})',
                     style: AppTypography.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 12),
@@ -289,8 +292,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     controller: _descriptionController,
                     maxLines: 3,
                     maxLength: 100,
-                    decoration: const InputDecoration(
-                      hintText: 'Ajouter une note...',
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.addNote,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
@@ -304,8 +307,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
             // Save Button
             CustomButton(
-              label:
-                  widget.transaction != null ? 'Mettre à jour' : 'Enregistrer',
+              label: widget.transaction != null
+                  ? AppLocalizations.of(context)!.update
+                  : AppLocalizations.of(context)!.save,
               onPressed: _saveTransaction,
               isLoading: _isLoading,
               icon: Icons.check,
@@ -338,8 +342,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez sélectionner une catégorie'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.selectCategory),
           backgroundColor: AppColors.error,
         ),
       );
@@ -376,16 +380,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         SnackBar(
           content: Text(
             widget.transaction != null
-                ? 'Transaction mise à jour'
-                : 'Transaction ajoutée',
+                ? AppLocalizations.of(context)!.transactionUpdated
+                : AppLocalizations.of(context)!.transactionAdded,
           ),
           backgroundColor: AppColors.success,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Une erreur s\'est produite'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.somethingWentWrong),
           backgroundColor: AppColors.error,
         ),
       );
@@ -394,23 +398,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   void _deleteTransaction() {
     if (widget.transaction?.id == null) return;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer'),
-        content: const Text('Voulez-vous supprimer cette transaction ?'),
+        title: Text(l10n.delete),
+        content: Text(l10n.confirmDeleteTransaction),
         actions: [
           TextButton(
             style: ButtonStyle(
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -422,7 +427,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Supprimer'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -449,6 +454,7 @@ class _TypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -466,7 +472,7 @@ class _TypeSelector extends StatelessWidget {
         children: [
           Expanded(
             child: _TypeButton(
-              label: 'Revenu',
+              label: l10n.income,
               icon: Icons.arrow_downward,
               isSelected: selectedType == TransactionType.income,
               color: AppColors.income,
@@ -475,7 +481,7 @@ class _TypeSelector extends StatelessWidget {
           ),
           Expanded(
             child: _TypeButton(
-              label: 'Dépense',
+              label: l10n.expenses,
               icon: Icons.arrow_upward,
               isSelected: selectedType == TransactionType.expense,
               color: AppColors.expense,
