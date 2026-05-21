@@ -13,8 +13,6 @@ class FinancialProfileLocalDataSource {
 
   /// Récupère toutes les questions (hardcodées pour v1)
   Future<List<QuestionModel>> getQuestions() async {
-    // Pour v1, les questions sont hardcodées
-    // Pour v2+, elles pourraient être stockées dans Hive ou Firebase
     return _getHardcodedQuestions();
   }
 
@@ -36,12 +34,12 @@ class FinancialProfileLocalDataSource {
     await box.delete(_profileKey);
   }
 
-  /// Questions hardcodées (20 questions optimales)
+  /// Questions avec IDs compatibles MongoDB (24 caractères hex)
   List<QuestionModel> _getHardcodedQuestions() {
-    final questions = [
-      // === QUESTION 1 : Argent inattendu ===
+    return [
+      // === QUESTION 1 ===
       QuestionModel(
-        id: 'q1',
+        id: '664a1f2b3c4d5e6f7a8b9c01',
         text: 'Quand vous recevez de l\'argent inattendu (prime, cadeau...), vous :',
         typeIndex: QuestionType.mixed.index,
         choices: [
@@ -79,9 +77,9 @@ class FinancialProfileLocalDataSource {
         order: 1,
       ),
 
-      // === QUESTION 2 : Suivi des dépenses ===
+      // === QUESTION 2 ===
       QuestionModel(
-        id: 'q2',
+        id: '664a1f2b3c4d5e6f7a8b9c02',
         text: 'À quelle fréquence consultez-vous vos comptes bancaires ?',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -122,9 +120,9 @@ class FinancialProfileLocalDataSource {
         order: 2,
       ),
 
-      // === QUESTION 3 : Achat coup de coeur ===
+      // === QUESTION 3 ===
       QuestionModel(
-        id: 'q3',
+        id: '664a1f2b3c4d5e6f7a8b9c03',
         text: 'Face à un achat coup de cœur important, vous :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -166,9 +164,9 @@ class FinancialProfileLocalDataSource {
         order: 3,
       ),
 
-      // === QUESTION 4 : Budget mensuel ===
+      // === QUESTION 4 ===
       QuestionModel(
-        id: 'q4',
+        id: '664a1f2b3c4d5e6f7a8b9c04',
         text: 'Avez-vous un budget mensuel défini ?',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -209,9 +207,9 @@ class FinancialProfileLocalDataSource {
         order: 4,
       ),
 
-      // === QUESTION 5 : Épargne mensuelle ===
+      // === QUESTION 5 ===
       QuestionModel(
-        id: 'q5',
+        id: '664a1f2b3c4d5e6f7a8b9c05',
         text: 'Épargnez-vous régulièrement chaque mois ?',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -253,9 +251,9 @@ class FinancialProfileLocalDataSource {
         order: 5,
       ),
 
-      // === QUESTION 6 : Réaction découvert ===
+      // === QUESTION 6 ===
       QuestionModel(
-        id: 'q6',
+        id: '664a1f2b3c4d5e6f7a8b9c06',
         text: 'Si votre compte est à découvert, comment réagissez-vous ?',
         typeIndex: QuestionType.mixed.index,
         choices: [
@@ -298,9 +296,9 @@ class FinancialProfileLocalDataSource {
         order: 6,
       ),
 
-      // === QUESTION 7 : Objectifs financiers ===
+      // === QUESTION 7 ===
       QuestionModel(
-        id: 'q7',
+        id: '664a1f2b3c4d5e6f7a8b9c07',
         text: 'Avez-vous des objectifs financiers à moyen/long terme ?',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -334,9 +332,9 @@ class FinancialProfileLocalDataSource {
         order: 7,
       ),
 
-      // === QUESTION 8 : Achats en ligne ===
+      // === QUESTION 8 ===
       QuestionModel(
-        id: 'q8',
+        id: '664a1f2b3c4d5e6f7a8b9c08',
         text: 'Vos achats en ligne sont généralement :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -369,9 +367,9 @@ class FinancialProfileLocalDataSource {
         order: 8,
       ),
 
-      // === QUESTION 9 : Promotions ===
+      // === QUESTION 9 ===
       QuestionModel(
-        id: 'q9',
+        id: '664a1f2b3c4d5e6f7a8b9c09',
         text: 'Face aux promotions et soldes :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -412,9 +410,9 @@ class FinancialProfileLocalDataSource {
         order: 9,
       ),
 
-      // === QUESTION 10 : Relation à l'argent ===
+      // === QUESTION 10 ===
       QuestionModel(
-        id: 'q10',
+        id: '664a1f2b3c4d5e6f7a8b9c10',
         text: 'Votre relation à l\'argent est plutôt :',
         typeIndex: QuestionType.mixed.index,
         choices: [
@@ -456,9 +454,9 @@ class FinancialProfileLocalDataSource {
         order: 10,
       ),
 
-      // === QUESTION 11 : Paiement carte/espèces ===
+      // === QUESTION 11 ===
       QuestionModel(
-        id: 'q11',
+        id: '664a1f2b3c4d5e6f7a8b9c11',
         text: 'Vous préférez payer :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -488,9 +486,9 @@ class FinancialProfileLocalDataSource {
         order: 11,
       ),
 
-      // === QUESTION 12 : Comparaison prix ===
+      // === QUESTION 12 ===
       QuestionModel(
-        id: 'q12',
+        id: '664a1f2b3c4d5e6f7a8b9c12',
         text: 'Avant un achat important, vous :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -523,9 +521,9 @@ class FinancialProfileLocalDataSource {
         order: 12,
       ),
 
-      // === QUESTION 13 : Fin de mois ===
+      // === QUESTION 13 ===
       QuestionModel(
-        id: 'q13',
+        id: '664a1f2b3c4d5e6f7a8b9c13',
         text: 'En fin de mois, vous êtes généralement :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -558,9 +556,9 @@ class FinancialProfileLocalDataSource {
         order: 13,
       ),
 
-      // === QUESTION 14 : Prêt à un proche ===
+      // === QUESTION 14 ===
       QuestionModel(
-        id: 'q14',
+        id: '664a1f2b3c4d5e6f7a8b9c14',
         text: 'Un proche vous demande de lui prêter de l\'argent :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -594,9 +592,9 @@ class FinancialProfileLocalDataSource {
         order: 14,
       ),
 
-      // === QUESTION 15 : Investissement ===
+      // === QUESTION 15 ===
       QuestionModel(
-        id: 'q15',
+        id: '664a1f2b3c4d5e6f7a8b9c15',
         text: 'Face à une opportunité d\'investissement :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -630,9 +628,9 @@ class FinancialProfileLocalDataSource {
         order: 15,
       ),
 
-      // === QUESTION 16 : Factures ===
+      // === QUESTION 16 ===
       QuestionModel(
-        id: 'q16',
+        id: '664a1f2b3c4d5e6f7a8b9c16',
         text: 'Vos factures et abonnements sont :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -665,9 +663,9 @@ class FinancialProfileLocalDataSource {
         order: 16,
       ),
 
-      // === QUESTION 17 : Récompense après effort ===
+      // === QUESTION 17 ===
       QuestionModel(
-        id: 'q17',
+        id: '664a1f2b3c4d5e6f7a8b9c17',
         text: 'Après un gros effort ou succès, vous :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -701,9 +699,9 @@ class FinancialProfileLocalDataSource {
         order: 17,
       ),
 
-      // === QUESTION 18 : Applications bancaires ===
+      // === QUESTION 18 ===
       QuestionModel(
-        id: 'q18',
+        id: '664a1f2b3c4d5e6f7a8b9c18',
         text: 'Utilisez-vous des applications de gestion financière ?',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -735,9 +733,9 @@ class FinancialProfileLocalDataSource {
         order: 18,
       ),
 
-      // === QUESTION 19 : Crédit/Découvert ===
+      // === QUESTION 19 ===
       QuestionModel(
-        id: 'q19',
+        id: '664a1f2b3c4d5e6f7a8b9c19',
         text: 'Votre position sur le crédit à la consommation :',
         typeIndex: QuestionType.multipleChoice.index,
         choices: [
@@ -771,9 +769,9 @@ class FinancialProfileLocalDataSource {
         order: 19,
       ),
 
-      // === QUESTION 20 : Vision future ===
+      // === QUESTION 20 ===
       QuestionModel(
-        id: 'q20',
+        id: '664a1f2b3c4d5e6f7a8b9c20',
         text: 'Dans 5 ans, financièrement vous vous voyez :',
         typeIndex: QuestionType.mixed.index,
         choices: [
@@ -807,7 +805,5 @@ class FinancialProfileLocalDataSource {
         order: 20,
       ),
     ];
-
-    return questions;
   }
 }
