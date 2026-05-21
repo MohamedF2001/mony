@@ -1,397 +1,60 @@
-/*
 // lib/features/onboarding/presentation/screens/onboarding_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:mony/features/onboarding/data/onboarding_data.dart';
-import 'package:mony/features/onboarding/data/onboarding_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_typography.dart';
-import '../../../../core/screens/app_router.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../dashboard/presentation/screens/dashboard_screen.dart';
-import '../../../financial_profile/presentation/screens/questionnaire_screen.dart';
-
-class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
-
-  @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-
-  final List<OnboardingData> _pages = [
-    OnboardingData(
-      title: 'Bienvenue sur Mony',
-      description:
-          'Prenez le contrôle total de vos finances personnelles avec une application simple et puissante.',
-      image: 'assets/images/onboarding1.png',
-      color: AppColors.primary,
-    ),
-    OnboardingData(
-      title: 'Suivez vos dépenses',
-      description:
-          'Enregistrez toutes vos transactions en quelques secondes et visualisez où va votre argent.',
-      image: 'assets/images/onboarding2.png',
-      color: AppColors.income,
-    ),
-    OnboardingData(
-      title: 'Gérez vos budgets',
-      description:
-          'Créez des budgets mensuels pour chaque catégorie et recevez des alertes en temps réel.',
-      image: 'assets/images/onboarding3.png',
-      color: AppColors.accent,
-    ),
-    OnboardingData(
-      title: 'Analysez vos finances',
-      description:
-          'Obtenez des rapports détaillés et des graphiques pour comprendre vos habitudes financières.',
-      image: 'assets/images/onboarding4.png',
-      color: AppColors.success,
-    ),
-  ];
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip Button
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (_currentPage < _pages.length - 1)
-                    TextButton(
-                      onPressed: () => _completeOnboarding(),
-                      child: Text(
-                        'Passer',
-                        style: AppTypography.textTheme.labelLarge?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            // Page View
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() => _currentPage = index);
-                },
-                itemBuilder: (context, index) {
-                  return OnboardingPage(data: _pages[index]);
-                },
-              ),
-            ),
-
-            // Page Indicator
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _pages.length,
-                  (index) => _PageIndicator(
-                    isActive: index == _currentPage,
-                    color: _pages[index].color,
-                  ),
-                ),
-              ),
-            ),
-
-            // Navigation Buttons
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: _currentPage == _pages.length - 1
-                  ? CustomButton(
-                      label: 'Commencer',
-                      onPressed: () => _completeOnboarding(),
-                      icon: Icons.arrow_forward,
-                    )
-                  : Row(
-                      children: [
-                        if (_currentPage > 0)
-                          Expanded(
-                            child: OutlinedButton(
-                              style: ButtonStyle(
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                              onPressed: () {
-                                _pageController.previousPage(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              },
-                              child: const Text('Précédent'),
-                            ),
-                          ),
-                        if (_currentPage > 0) const SizedBox(width: 16),
-                        Expanded(
-                          flex: _currentPage > 0 ? 1 : 2,
-                          child: CustomButton(
-                            label: 'Suivant',
-                            onPressed: () {
-                              _pageController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _completeOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenOnboarding', true);
-
-    if (!mounted) return;
-
-    // Navigate to main app or profile setup
-    //Navigator.pushReplacementNamed(context, '/setup-profile');
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const QuestionnaireScreen(),
-      ),
-    );
-  }
-}
-
-
-class _PageIndicator extends StatelessWidget {
-  final bool isActive;
-  final Color color;
-
-  const _PageIndicator({
-    required this.isActive,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: isActive ? 24 : 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: isActive ? color : AppColors.textTertiary.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(4),
-      ),
-    );
-  }
-}
-
-class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key});
-
-  @override
-  State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
-}
-
-class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Configurer votre profil'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const SizedBox(height: 40),
-
-            // Avatar
-            Center(
-              child: Stack(
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      size: 60,
-                      color: AppColors.white,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppColors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 48),
-
-            // Name Field
-            Text(
-              'Comment devons-nous vous appeler ?',
-              style: AppTypography.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 24),
-
-            TextFormField(
-              controller: _nameController,
-              textAlign: TextAlign.center,
-              style: AppTypography.textTheme.titleLarge,
-              decoration: const InputDecoration(
-                hintText: 'Votre nom',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Veuillez entrer votre nom';
-                }
-                return null;
-              },
-            ),
-
-            const SizedBox(height: 48),
-
-            CustomButton(
-              label: 'Continuer',
-              onPressed: _completeSetup,
-              icon: Icons.arrow_forward,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _completeSetup() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userName', _nameController.text);
-    await prefs.setBool('isInited', true);
-
-    if (!mounted) return;
-
-    //Navigator.pushReplacementNamed(context, '/home');
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => AppRouter(
-          dashboardScreen: DashboardScreen(),
-        ),
-      ),
-    );
-  }
-}
-
-*/
-
-
-// lib/features/onboarding/presentation/screens/onboarding_screen.dart
-
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/services/navigation_service.dart';
 import '../../../../core/services/user_service.dart';
+import '../../../settings/presentation/providers/app_settings_provider.dart';
 
-/// Écran d'onboarding (à personnaliser selon votre design)
-class OnboardingScreen extends StatefulWidget {
+/// Écran d'onboarding
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingPage> _pages = [
-    OnboardingPage(
-      title: 'Bienvenue sur Mony',
-      description: 'Gérez vos finances personnelles en toute simplicité',
-      icon: Icons.account_balance_wallet,
-      color: const Color(0xFF2D6CFF),
-    ),
-    OnboardingPage(
-      title: 'Suivez vos dépenses',
-      description: 'Gardez un œil sur vos transactions et catégories',
-      icon: Icons.analytics,
-      color: const Color(0xFF00D09C),
-    ),
-    OnboardingPage(
-      title: 'Atteignez vos objectifs',
-      description: 'Définissez des budgets et suivez votre progression',
-      icon: Icons.trending_up,
-      color: const Color(0xFFFF6B6B),
-    ),
-    OnboardingPage(
-      title: 'Assistant IA personnalisé',
-      description: 'Recevez des conseils adaptés à votre profil financier',
-      icon: Icons.psychology,
-      color: const Color(0xFF9C27B0),
-    ),
-  ];
+  List<OnboardingPageData> _getPages(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      OnboardingPageData(
+        title: l10n.welcome,
+        description: l10n.welcomeDescription,
+        image: 'assets/images/onboarding1.png',
+        color: const Color(0xFF2D6CFF),
+      ),
+      OnboardingPageData(
+        title: l10n.trackExpenses,
+        description: l10n.trackExpensesDescription,
+        image: 'assets/images/onboarding2.png',
+        color: const Color(0xFF00D09C),
+      ),
+      OnboardingPageData(
+        title: l10n.manageBudgets,
+        description: l10n.manageBudgetsDescription,
+        image: 'assets/images/onboarding3.png',
+        color: const Color(0xFFFF6B6B),
+      ),
+      OnboardingPageData(
+        title: l10n.analyzeFinances,
+        description: l10n.analyzeFinancesDescription,
+        image: 'assets/images/onboarding4.png',
+        color: const Color(0xFF9C27B0),
+      ),
+      OnboardingPageData(
+        title: l10n.languageAndCurrency,
+        description: l10n.chooseLanguageAndCurrency,
+        icon: Icons.language,
+        color: const Color(0xFFFF9800),
+        isSettingsPage: true,
+      ),
+    ];
+  }
 
   @override
   void dispose() {
@@ -401,38 +64,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _completeOnboarding() async {
     final navigationService = NavigationService(UserService());
+    // CRITICAL: Save that onboarding has been seen
     await navigationService.markOnboardingAsSeen();
 
     if (!mounted) return;
 
-    // Naviguer vers la connexion
     Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final pages = _getPages(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
-            // Bouton Skip
             Align(
               alignment: Alignment.topRight,
               child: TextButton(
-                onPressed: _currentPage == _pages.length - 1
+                onPressed: _currentPage == pages.length - 1
                     ? null
                     : () {
-                  _pageController.animateToPage(
-                    _pages.length - 1,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
+                        _pageController.animateToPage(
+                          pages.length - 1,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
                 child: Text(
-                  'Passer',
+                  l10n.skip,
                   style: TextStyle(
-                    color: _currentPage == _pages.length - 1
+                    color: _currentPage == pages.length - 1
                         ? Colors.grey
                         : Theme.of(context).primaryColor,
                     fontSize: 16,
@@ -440,8 +105,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
             ),
-
-            // PageView
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -450,19 +113,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     _currentPage = index;
                   });
                 },
-                itemCount: _pages.length,
+                itemCount: pages.length,
                 itemBuilder: (context, index) {
-                  return _buildPage(_pages[index]);
+                  return _buildPage(pages[index]);
                 },
               ),
             ),
-
-            // Indicateurs
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length,
-                    (index) => Container(
+                pages.length,
+                (index) => Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   width: _currentPage == index ? 24 : 8,
                   height: 8,
@@ -475,10 +136,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 32),
-
-            // Bouton
             Padding(
               padding: const EdgeInsets.all(24),
               child: SizedBox(
@@ -486,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_currentPage == _pages.length - 1) {
+                    if (_currentPage == pages.length - 1) {
                       _completeOnboarding();
                     } else {
                       _pageController.nextPage(
@@ -503,9 +161,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   child: Text(
-                    _currentPage == _pages.length - 1
-                        ? 'Commencer'
-                        : 'Suivant',
+                    _currentPage == pages.length - 1 ? l10n.start : l10n.next,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -520,25 +176,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildPage(OnboardingPage page) {
+  Widget _buildPage(OnboardingPageData page) {
+    final l10n = AppLocalizations.of(context)!;
+    final settings = ref.watch(appSettingsProvider);
+
     return Padding(
       padding: const EdgeInsets.all(40),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 200,
-            height: 200,
-            decoration: BoxDecoration(
-              color: page.color.withOpacity(0.1),
-              shape: BoxShape.circle,
+          if (page.image != null)
+            Image.asset(
+              page.image!,
+              height: 200,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: page.color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.image_not_supported,
+                  size: 100,
+                  color: page.color,
+                ),
+              ),
+            )
+          else
+            Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                color: page.color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                page.icon,
+                size: 100,
+                color: page.color,
+              ),
             ),
-            child: Icon(
-              page.icon,
-              size: 100,
-              color: page.color,
-            ),
-          ),
           const SizedBox(height: 48),
           Text(
             page.title,
@@ -550,30 +228,163 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          Text(
-            page.description,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
+          if (page.isSettingsPage) ...[
+            Text(
+              page.description,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
+            const SizedBox(height: 32),
+            _buildSelectionTile(
+              title: l10n.language,
+              value: settings.locale.languageCode == 'fr'
+                  ? l10n.french
+                  : l10n.english,
+              onTap: () => _showLanguageDialog(),
+            ),
+            const SizedBox(height: 16),
+            _buildSelectionTile(
+              title: l10n.currency,
+              value: settings.currency,
+              onTap: () => _showCurrencyDialog(),
+            ),
+          ] else
+            Text(
+              page.description,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSelectionTile({
+    required String title,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            Row(
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                ),
+                const Icon(Icons.chevron_right, color: Colors.grey),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.language),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(l10n.french),
+              onTap: () {
+                ref
+                    .read(appSettingsProvider.notifier)
+                    .setLocale(const Locale('fr'));
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text(l10n.english),
+              onTap: () {
+                ref
+                    .read(appSettingsProvider.notifier)
+                    .setLocale(const Locale('en'));
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCurrencyDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.currency),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('F CFA'),
+              onTap: () {
+                ref.read(appSettingsProvider.notifier).setCurrency('F CFA');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('\$'),
+              onTap: () {
+                ref.read(appSettingsProvider.notifier).setCurrency('\$');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('€'),
+              onTap: () {
+                ref.read(appSettingsProvider.notifier).setCurrency('€');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class OnboardingPage {
+class OnboardingPageData {
   final String title;
   final String description;
-  final IconData icon;
+  final String? image;
+  final IconData? icon;
   final Color color;
+  final bool isSettingsPage;
 
-  OnboardingPage({
+  OnboardingPageData({
     required this.title,
     required this.description,
-    required this.icon,
+    this.image,
+    this.icon,
     required this.color,
+    this.isSettingsPage = false,
   });
 }

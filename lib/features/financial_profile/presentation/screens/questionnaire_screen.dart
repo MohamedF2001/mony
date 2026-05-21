@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../providers/financial_profile_provider..dart';
 import '../widgets/questionnaire_progress_bar.dart';
 import '../widgets/question_card.dart';
@@ -133,7 +134,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
                 onPressed: () {
                   ref.read(questionnaireProvider.notifier).loadQuestions();
                 },
-                child: const Text('Réessayer'),
+                child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),
@@ -143,9 +144,9 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
 
     final currentQ = state.currentQuestion;
     if (currentQ == null) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
-          child: Text('Aucune question disponible'),
+          child: Text(AppLocalizations.of(context)!.noQuestions),
         ),
       );
     }
@@ -162,9 +163,9 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
         )
             : null,
         title: Text(
-          'Profil Financier',
+          AppLocalizations.of(context)!.profile,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: Colors.black87,
+                color: Colors.black87,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -224,8 +225,8 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
                   ),
                   child: Text(
                     state.currentQuestionIndex + 1 < state.totalQuestions
-                        ? 'Suivant'
-                        : 'Terminer',
+                        ? AppLocalizations.of(context)!.next
+                        : AppLocalizations.of(context)!.finish,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

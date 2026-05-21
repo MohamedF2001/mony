@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,9 +21,13 @@ import 'features/financial_profile/data/models/profile_model_adapter.dart';
 import 'features/financial_profile/data/models/question_model_adapter.dart';
 import 'features/transaction/data/models/transaction_model.dart';
 import 'features/transaction/data/models/transaction_model_adapter.dart';
+import 'features/settings/presentation/providers/app_settings_provider.dart';
+import 'core/utils/formatters.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
 
   // Init date formatting
   await initializeDateFormatting('fr_FR', null);
@@ -69,7 +75,14 @@ void main() async {
   // 🔥 INITIALISATION DES NOTIFICATIONS EN ARRIÈRE-PLAN
   _initNotificationsAsync();
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 // ✅ Fonction asynchrone qui ne bloque pas le lancement
@@ -88,11 +101,16 @@ Future<void> _initNotificationsAsync() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(appSettingsProvider);
+
+    // Update global formatters default currency
+    Formatters.defaultCurrency = settings.currency;
+
     return MaterialApp(
       title: 'Mony',
       theme: ThemeData(
@@ -100,6 +118,17 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2D6CFF)),
         useMaterial3: true,
       ),
+      locale: settings.locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('fr'),
+        Locale('en'),
+      ],
       initialRoute: AppRoutes.splash,
       routes: AppRoutes.routes,
       debugShowCheckedModeBanner: false,

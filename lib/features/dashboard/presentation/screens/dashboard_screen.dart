@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animations/animations.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import 'package:mony/features/transaction/domain/entities/transaction.dart';
 import 'package:mony/features/transaction/presentation/screens/transaction_list_sreen.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -44,9 +45,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           data: (user) {
             final authUser = ref.watch(authProvider).user;
             final name = authUser != null ? '${authUser.firstName}' : (user?.name ?? "");
-            return Text('Bonjour $name 👋');
+            return Text(AppLocalizations.of(context)!.hello(name));
           },
-          loading: () => const Text('Chargement...'),
+          loading: () => Text(AppLocalizations.of(context)!.loading),
           error: (_, __) => const Text('Mony'),
         ),
         actions: [
@@ -66,7 +67,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       backgroundColor: AppColors.background,
       body: userAsync.when(
         data: (user) {
-          if (user == null) return const Text('Aucun utilisateur');
+          if (user == null) return Text(AppLocalizations.of(context)!.noUser);
 
           return CustomScrollView(
             slivers: [
@@ -91,10 +92,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),*/
-                    Text('Vous etes un : ${user.financialProfile?.label ?? "Non défini"}',
+                    Text(
+                      AppLocalizations.of(context)!
+                          .youAreA(user.financialProfile?.label ?? "---"),
                       style: AppTypography.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                      ),),
+                      ),
+                    ),
                   ],
                 ),
                 /*actions: [
@@ -160,7 +164,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         children: [
                           Expanded(
                             child: MoneyCard(
-                              title: 'Revenus',
+                              title: AppLocalizations.of(context)!.income,
                               amount: totalIncome,
                               icon: Icons.arrow_downward,
                               color: AppColors.income,
@@ -170,7 +174,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: MoneyCard(
-                              title: 'Dépenses',
+                              title: AppLocalizations.of(context)!.expenses,
                               amount: totalExpense,
                               icon: Icons.arrow_upward,
                               color: AppColors.expense,
@@ -200,8 +204,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Transactions récentes',
-                            style: AppTypography.textTheme.titleMedium?.copyWith(
+                            AppLocalizations.of(context)!.recentTransactions,
+                            style:
+                                AppTypography.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -211,11 +216,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                  const TransactionListScreen(),
+                                      const TransactionListScreen(),
                                 ),
                               );
                             },
-                            child: const Text('Voir tout'),
+                            child: Text(AppLocalizations.of(context)!.seeAll),
                           ),
                         ],
                       ),
@@ -234,11 +239,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 )
               else if (recentTransactions.isEmpty)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   child: EmptyState(
                     icon: Icons.receipt_long_outlined,
-                    title: 'Aucune transaction',
-                    subtitle: 'Commencez par ajouter votre première transaction',
+                    title: AppLocalizations.of(context)!.noTransaction,
+                    subtitle:
+                        AppLocalizations.of(context)!.startByAddingTransaction,
                   ),
                 )
               else
@@ -277,7 +283,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           );*/
         },
         loading: () => const CircularProgressIndicator(),
-        error: (err, _) => Text('Erreur: $err'),
+        error: (err, _) => Text('${AppLocalizations.of(context)!.error}: $err'),
       ),
 
 
@@ -334,38 +340,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   void _deleteTransaction(String id) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer la transaction'),
-        content: const Text(
-          'Êtes-vous sûr de vouloir supprimer cette transaction ?',
-        ),
+        title: Text(l10n.deleteTransaction),
+        content: Text(l10n.confirmDeleteTransaction),
         actions: [
           TextButton(
             style: ButtonStyle(
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               ref.read(transactionProvider.notifier).deleteTransaction(id);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Transaction supprimée'),
+                SnackBar(
+                  content: Text(l10n.transactionDeleted),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Supprimer'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -448,7 +453,7 @@ class _TransactionDetailsSheet extends StatelessWidget {
                 const Divider(),
                 const SizedBox(height: 24),
                 _DetailRow(
-                  label: 'Montant',
+                  label: AppLocalizations.of(context)!.amount,
                   value: transaction.amount.toFormattedMoney(),
                   valueColor: transaction.isIncome
                       ? AppColors.income
@@ -456,19 +461,21 @@ class _TransactionDetailsSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 _DetailRow(
-                  label: 'Type',
-                  value: transaction.isIncome ? 'Revenu' : 'Dépense',
+                  label: AppLocalizations.of(context)!.type,
+                  value: transaction.isIncome
+                      ? AppLocalizations.of(context)!.income
+                      : AppLocalizations.of(context)!.expenses,
                 ),
                 const SizedBox(height: 16),
                 _DetailRow(
-                  label: 'Date',
+                  label: AppLocalizations.of(context)!.date,
                   value: transaction.date.toFormattedDateLong(),
                 ),
                 if (transaction.description != null &&
                     transaction.description!.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   _DetailRow(
-                    label: 'Description',
+                    label: AppLocalizations.of(context)!.description,
                     value: transaction.description!,
                   ),
                 ],

@@ -29,20 +29,31 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   Future<void> loadUser() async {
     state = const AsyncValue.loading();
     try {
+      // Récupérer d'abord l'utilisateur local (Hive) comme base
+      final localUser = await _userService.getCurrentUser();
+      
       // Priorité à l'utilisateur authentifié
       final authState = _ref.read(authProvider);
       if (authState.user != null) {
         final authUser = authState.user!;
         FinancialProfile? financialProfile;
+        
         try {
           final apiClient = _ref.read(apiClientProvider);
           final response = await apiClient.dio.get('/api/financial-profile');
-          financialProfile = FinancialProfileModel.fromJson(
-            Map<String, dynamic>.from(response.data['data']['profile'] as Map),
-          ).toEntity();
+          
+          if (response.data != null && response.data['data'] != null && response.data['data']['profile'] != null) {
+            financialProfile = FinancialProfileModel.fromJson(
+              Map<String, dynamic>.from(response.data['data']['profile'] as Map),
+            ).toEntity();
+          }
         } catch (_) {
-          financialProfile = null;
+          // En cas d'erreur API, on garde le profil local s'il existe
+          financialProfile = localUser?.financialProfile;
         }
+
+        // Si l'API n'a rien renvoyé, on utilise le profil local
+        financialProfile ??= localUser?.financialProfile;
 
         state = AsyncValue.data(User(
           id: authUser.id,
@@ -53,8 +64,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
         return;
       }
 
-      final user = await _userService.getCurrentUser();
-      state = AsyncValue.data(user);
+      state = AsyncValue.data(localUser);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

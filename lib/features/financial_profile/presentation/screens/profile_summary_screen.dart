@@ -591,6 +591,7 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../onboarding/presentation/screens/name_input_screen.dart';
 import '../providers/financial_profile_provider..dart';
 import '../../domain/entities/financial_trait.dart';
@@ -647,8 +648,8 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
 
     if (profile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erreur : Aucun profil à sauvegarder'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.noProfileToSave),
           backgroundColor: Colors.red,
         ),
       );
@@ -1603,6 +1604,7 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../onboarding/presentation/screens/name_input_screen.dart';
 import '../providers/financial_profile_provider..dart';
 import '../../domain/entities/financial_trait.dart';
@@ -1680,8 +1682,8 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
     if (hasName) {
       // L'utilisateur a déjà un nom → Aller directement au home
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profil mis à jour avec succès !'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.profileUpdated),
           backgroundColor: Colors.green,
         ),
       );
@@ -1703,9 +1705,9 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
     final profile = state.calculatedProfile;
 
     if (profile == null) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
-          child: Text('Erreur : Aucun profil calculé'),
+          child: Text(AppLocalizations.of(context)!.noProfileCalculated),
         ),
       );
     }
@@ -1781,9 +1783,9 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
       ),
       child: Column(
         children: [
-          const Text(
-            'Votre Profil Financier',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.profile,
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -2087,9 +2089,9 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
             ),
             elevation: 2,
           ),
-          child: const Text(
-            'Commencer avec Mony',
-            style: TextStyle(
+          child: Text(
+            AppLocalizations.of(context)!.start,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -93,9 +94,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Créer un compte',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.createAccount,
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
@@ -103,9 +104,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Rejoignez Mony pour mieux gérer votre argent',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.joiningMony,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
                     fontFamily: 'Poppins',
@@ -165,7 +166,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: TextFormField(
                         controller: _firstNameController,
                         decoration: InputDecoration(
-                          labelText: 'Prénom',
+                          labelText: AppLocalizations.of(context)!.firstName,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -182,7 +183,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: TextFormField(
                         controller: _lastNameController,
                         decoration: InputDecoration(
-                          labelText: 'Nom',
+                          labelText: AppLocalizations.of(context)!.name,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -200,7 +201,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Nom d\'utilisateur',
+                    labelText: AppLocalizations.of(context)!.username,
                     prefixIcon: const Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -216,7 +217,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: AppLocalizations.of(context)!.email,
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -237,7 +238,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
-                    labelText: 'Mot de passe',
+                    labelText: AppLocalizations.of(context)!.password,
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -275,9 +276,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text(
-                          'S\'inscrire',
-                          style: TextStyle(
+                      : Text(
+                          AppLocalizations.of(context)!.register,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins',

@@ -148,8 +148,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/utils/formatters.dart';
 import '../providers/statistics_providers.dart';
 
 class TrendLineChart extends ConsumerWidget {
@@ -181,13 +183,13 @@ class TrendLineChart extends ConsumerWidget {
           Row(
             children: [
               Text(
-                'Tendances',
+                AppLocalizations.of(context)!.trends,
                 style: AppTypography.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const Spacer(),
-              _buildLegend(),
+              _buildLegend(context),
             ],
           ),
           const SizedBox(height: 20),
@@ -195,20 +197,20 @@ class TrendLineChart extends ConsumerWidget {
             child: trendData.when(
               data: (dataPoints) {
                 if (dataPoints.isEmpty) {
-                  return const Center(
-                    child: Text('Aucune donnée disponible pour cette période'),
+                  return Center(
+                    child: Text(AppLocalizations.of(context)!.noDataAvailable),
                   );
                 }
 
                 return LineChart(
-                  _buildChartData(dataPoints),
+                  _buildChartData(context, dataPoints),
                 );
               },
               loading: () => const Center(
                 child: CircularProgressIndicator(),
               ),
               error: (error, _) => Center(
-                child: Text('Erreur: $error'),
+                child: Text('${AppLocalizations.of(context)!.error}: $error'),
               ),
             ),
           ),
@@ -217,18 +219,22 @@ class TrendLineChart extends ConsumerWidget {
     );
   }
 
-  Widget _buildLegend() {
+  Widget _buildLegend(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _LegendItem(color: AppColors.income, label: 'Revenus'),
+        _LegendItem(
+            color: AppColors.income, label: AppLocalizations.of(context)!.income),
         const SizedBox(width: 16),
-        _LegendItem(color: AppColors.expense, label: 'Dépenses'),
+        _LegendItem(
+            color: AppColors.expense,
+            label: AppLocalizations.of(context)!.expenses),
       ],
     );
   }
 
-  LineChartData _buildChartData(List<TrendDataPoint> dataPoints) {
+  LineChartData _buildChartData(
+      BuildContext context, List<TrendDataPoint> dataPoints) {
     final allValues = dataPoints.expand((p) => [p.income, p.expense]).toList();
     final maxValue = allValues.isNotEmpty ? allValues.reduce((a, b) => a > b ? a : b) : 0.0;
     final minValue = allValues.isNotEmpty ? allValues.reduce((a, b) => a < b ? a : b) : 0.0;
@@ -296,16 +302,24 @@ class TrendLineChart extends ConsumerWidget {
             return touchedSpots.map((spot) {
               final date = dataPoints[spot.x.toInt()].date;
               final isIncome = spot.barIndex == 0;
-              final label = isIncome ? 'Revenus' : 'Dépenses';
+              final label = isIncome
+                  ? AppLocalizations.of(context)!.income
+                  : AppLocalizations.of(context)!.expenses;
               final color = isIncome ? AppColors.income : AppColors.expense;
 
               return LineTooltipItem(
                 '$label\n',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12),
                 children: [
                   TextSpan(
-                    text: '${_formatAmount(spot.y)} F CFA',
-                    style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 14),
+                    text: spot.y.toFormattedMoney(),
+                    style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14),
                   ),
                   TextSpan(
                     text: '\n${_formatTooltipDate(date)}',

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../settings/presentation/providers/app_settings_provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../transaction/domain/entities/transaction.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
@@ -410,13 +411,16 @@ final insightsProvider = Provider<List<InsightData>>((ref) {
   }
 
   // Insight 3: Moyenne de dépenses
-  final periodDays = period == StatisticsPeriod.week ? 7
-      : period == StatisticsPeriod.month ? 30
-      : 365;
+  final periodDays = period == StatisticsPeriod.week
+      ? 7
+      : period == StatisticsPeriod.month
+          ? 30
+          : 365;
   final dailyAverage = expense / periodDays;
 
+  final currency = ref.watch(appSettingsProvider).currency;
   insights.add(InsightData(
-    message: 'Dépense moyenne: ${dailyAverage.toStringAsFixed(0)} F CFA/jour',
+    message: 'Dépense moyenne: ${dailyAverage.toStringAsFixed(0)} $currency/jour',
     icon: Icons.trending_up,
     color: AppColors.error,
   ));

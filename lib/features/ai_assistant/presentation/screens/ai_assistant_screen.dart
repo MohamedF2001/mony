@@ -235,8 +235,8 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
     final totalIncome = ref.read(totalIncomeProvider);
     final totalExpense = ref.read(totalExpenseProvider);
 
-    final context = 'Total revenus: $totalIncome F CFA, '
-        'Total dépenses: $totalExpense F CFA, '
+    final context = 'Total revenus: $totalIncome ${ref.watch(appSettingsProvider).currency}, '
+        'Total dépenses: $totalExpense ${ref.watch(appSettingsProvider).currency}, '
         'Nombre de transactions: ${transactions.length}';
 
     ref.read(aiAssistantProvider.notifier).sendMessage(
@@ -471,6 +471,7 @@ import '../../../transaction/presentation/providers/transaction_providers.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../presentation/providers/ai_assistant_provider.dart';
 import '../../data/datasources/gemini_datasource.dart';
+import '../../../settings/presentation/providers/app_settings_provider.dart';
 
 class AiAssistantScreen extends ConsumerStatefulWidget {
   const AiAssistantScreen({super.key});
@@ -685,9 +686,10 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
     final transactions = ref.read(filteredTransactionsProvider);
     final totalIncome = ref.read(totalIncomeProvider);
     final totalExpense = ref.read(totalExpenseProvider);
+    final currency = ref.read(appSettingsProvider).currency;
 
     final context =
-        'Total revenus: $totalIncome F CFA, Total dépenses: $totalExpense F CFA, Nombre de transactions: ${transactions.length}';
+        'Total revenus: $totalIncome $currency, Total dépenses: $totalExpense $currency, Nombre de transactions: ${transactions.length}';
 
     ref.read(aiAssistantProvider.notifier).sendMessage(
       message,
@@ -702,6 +704,7 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
     final totalIncome = ref.read(totalIncomeProvider);
     final totalExpense = ref.read(totalExpenseProvider);
     final transactions = ref.read(filteredTransactionsProvider);
+    final currency = ref.read(appSettingsProvider).currency;
 
     // Répartition par catégorie
     final Map<String, double> categoryBreakdown = {};
@@ -727,10 +730,11 @@ class _AiAssistantScreenState extends ConsumerState<AiAssistantScreen> {
             onPressed: () {
               Navigator.pop(context);
               ref.read(aiAssistantProvider.notifier).analyzeFinances(
-                totalIncome: totalIncome,
-                totalExpense: totalExpense,
-                categoryBreakdown: categoryBreakdown,
-              );
+                    totalIncome: totalIncome,
+                    totalExpense: totalExpense,
+                    categoryBreakdown: categoryBreakdown,
+                    currency: currency,
+                  );
               _scrollToBottom();
             },
             child: const Text('Analyser'),

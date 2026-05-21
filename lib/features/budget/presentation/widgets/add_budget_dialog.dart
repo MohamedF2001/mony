@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../settings/presentation/providers/app_settings_provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/widgets/custom_button.dart';
@@ -136,9 +137,9 @@ class _AddBudgetDialogState extends ConsumerState<AddBudgetDialog> {
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                   ],
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: '0',
-                    suffixText: 'F CFA',
+                    suffixText: ref.watch(appSettingsProvider).currency,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {

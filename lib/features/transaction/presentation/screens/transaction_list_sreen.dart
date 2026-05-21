@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/widgets/transaction_tile.dart';
@@ -58,7 +59,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Transactions'),
+        title: Text(AppLocalizations.of(context)!.transactions),
         actions: [
           IconButton(
             onPressed: _showFilterOptions,
@@ -75,10 +76,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle: AppTypography.textTheme.labelLarge,
-          tabs: const [
-            Tab(text: 'Toutes'),
-            Tab(text: 'Revenus'),
-            Tab(text: 'Dépenses'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.all),
+            Tab(text: AppLocalizations.of(context)!.income),
+            Tab(text: AppLocalizations.of(context)!.expenses),
           ],
         ),
       ),
@@ -140,7 +141,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
           ),
           const SizedBox(height: 24),
           Text(
-            'Chargement des transactions...',
+            AppLocalizations.of(context)!.loadingTransactions,
             style: AppTypography.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -152,10 +153,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
 
   Widget _buildTransactionList(List<Transaction> transactions) {
     if (transactions.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.receipt_long_outlined,
-        title: 'Aucune transaction',
-        subtitle: 'Les transactions apparaîtront ici',
+        title: AppLocalizations.of(context)!.noTransaction,
+        subtitle: AppLocalizations.of(context)!.noTransactionsSubtitle,
       );
     }
 
@@ -295,15 +296,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
           if (success && mounted) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Transaction modifiée avec succès'),
+              SnackBar(
+                content:
+                    Text(AppLocalizations.of(context)!.transactionUpdated),
                 backgroundColor: AppColors.success,
               ),
             );
           } else if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Erreur lors de la modification'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.error),
                 backgroundColor: AppColors.error,
               ),
             );
@@ -336,8 +338,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: const Text('Supprimer la transaction',
-              style: TextStyle(fontSize: 18,),),
+              child: Text(
+                AppLocalizations.of(context)!.deleteTransaction,
+                style: const TextStyle(
+                  fontSize: 18,
+                ),
+              ),
             ),
           ],
         ),
@@ -346,7 +352,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Êtes-vous sûr de vouloir supprimer cette transaction ?',
+              AppLocalizations.of(context)!.confirmDeleteTransaction,
               style: AppTypography.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -389,7 +395,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Cette action est irréversible.',
+              AppLocalizations.of(context)!.irreversible,
               style: AppTypography.textTheme.bodySmall?.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w600,
@@ -401,8 +407,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Annuler',
-              style: TextStyle(color: AppColors.textSecondary),
+              AppLocalizations.of(context)!.cancel,
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -415,15 +421,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
                 Navigator.pop(context);
                 if (success) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Transaction supprimée avec succès'),
+                    SnackBar(
+                      content: Text(
+                          AppLocalizations.of(context)!.transactionDeleted),
                       backgroundColor: AppColors.success,
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Erreur lors de la suppression'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context)!.error),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -434,7 +441,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen>
               backgroundColor: AppColors.error,
               foregroundColor: AppColors.white,
             ),
-            child: const Text('Supprimer'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -610,9 +617,9 @@ class _TransactionTileWithActions extends StatelessWidget {
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit_outlined, size: 20),
-                          SizedBox(width: 12),
-                          Text('Modifier'),
+                        const Icon(Icons.edit_outlined, size: 20),
+                        const SizedBox(width: 12),
+                        Text(AppLocalizations.of(context)!.edit),
                         ],
                       ),
                     ),
@@ -620,11 +627,11 @@ class _TransactionTileWithActions extends StatelessWidget {
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline,
+                        const Icon(Icons.delete_outline,
                               size: 20, color: AppColors.error),
-                          SizedBox(width: 12),
-                          Text('Supprimer',
-                              style: TextStyle(color: AppColors.error)),
+                        const SizedBox(width: 12),
+                        Text(AppLocalizations.of(context)!.delete,
+                            style: const TextStyle(color: AppColors.error)),
                         ],
                       ),
                     ),
@@ -716,18 +723,18 @@ class _TransactionDetailsSheet extends StatelessWidget {
                   // Details
                   _DetailRow(
                     icon: Icons.category_outlined,
-                    label: 'Catégorie',
+                  label: AppLocalizations.of(context)!.category,
                     value: transaction.category,
                   ),
                   _DetailRow(
                     icon: Icons.calendar_today_outlined,
-                    label: 'Date',
+                  label: AppLocalizations.of(context)!.date,
                     value: transaction.date.toFormattedDate(),
                   ),
                   if (transaction.description?.isNotEmpty ?? false)
                     _DetailRow(
                       icon: Icons.description_outlined,
-                      label: 'Description',
+                    label: AppLocalizations.of(context)!.description,
                       value: transaction.description!,
                     ),
                   const SizedBox(height: 32),
@@ -738,10 +745,10 @@ class _TransactionDetailsSheet extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: onEdit,
                           icon: const Icon(Icons.edit_outlined),
-                          label: const Text('Modifier'),
+                        label: Text(AppLocalizations.of(context)!.edit),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: BorderSide(color: AppColors.primary),
+                          side: const BorderSide(color: AppColors.primary),
                             foregroundColor: AppColors.primary,
                           ),
                         ),
@@ -751,7 +758,7 @@ class _TransactionDetailsSheet extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: onDelete,
                           icon: const Icon(Icons.delete_outline),
-                          label: const Text('Supprimer'),
+                        label: Text(AppLocalizations.of(context)!.delete),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             backgroundColor: AppColors.error,
@@ -879,7 +886,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Modifier la transaction',
+                AppLocalizations.of(context)!.editTransaction,
                 style: AppTypography.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -890,7 +897,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                 children: [
                   Expanded(
                     child: _TypeButton(
-                      label: 'Revenu',
+                      label: AppLocalizations.of(context)!.income,
                       icon: Icons.arrow_downward,
                       isSelected: _selectedType == TransactionType.income,
                       color: AppColors.income,
@@ -904,7 +911,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: _TypeButton(
-                      label: 'Dépense',
+                      label: AppLocalizations.of(context)!.expenses,
                       icon: Icons.arrow_upward,
                       isSelected: _selectedType == TransactionType.expense,
                       color: AppColors.expense,
@@ -923,7 +930,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                 controller: _amountController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: 'Montant',
+                  labelText: AppLocalizations.of(context)!.amount,
                   prefixIcon: const Icon(Icons.attach_money),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -935,7 +942,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
               TextField(
                 controller: _categoryController,
                 decoration: InputDecoration(
-                  labelText: 'Catégorie',
+                  labelText: AppLocalizations.of(context)!.category,
                   prefixIcon: const Icon(Icons.category_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -948,7 +955,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                 onTap: _selectDate,
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: 'Date',
+                    labelText: AppLocalizations.of(context)!.date,
                     prefixIcon: const Icon(Icons.calendar_today_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -963,7 +970,8 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  labelText: 'Description (optionnel)',
+                  labelText:
+                      '${AppLocalizations.of(context)!.description} (${AppLocalizations.of(context)!.optional})',
                   prefixIcon: const Icon(Icons.description_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -979,7 +987,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Enregistrer les modifications'),
+                  child: Text(AppLocalizations.of(context)!.saveChanges),
                 ),
               ),
             ],
@@ -1152,7 +1160,7 @@ class _FilterOptionsSheetState extends State<_FilterOptionsSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Filtres',
+                    AppLocalizations.of(context)!.filters,
                     style: AppTypography.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -1163,19 +1171,19 @@ class _FilterOptionsSheetState extends State<_FilterOptionsSheet> {
                     runSpacing: 8,
                     children: [
                       _FilterChip(
-                        label: 'Aujourd\'hui',
+                        label: AppLocalizations.of(context)!.today,
                         onTap: () => _setQuickFilter(0),
                       ),
                       _FilterChip(
-                        label: 'Cette semaine',
+                        label: AppLocalizations.of(context)!.thisWeek,
                         onTap: () => _setQuickFilter(7),
                       ),
                       _FilterChip(
-                        label: 'Ce mois',
+                        label: AppLocalizations.of(context)!.thisMonth,
                         onTap: () => _setQuickFilter(30),
                       ),
                       _FilterChip(
-                        label: 'Cette année',
+                        label: AppLocalizations.of(context)!.thisYear,
                         onTap: () => _setQuickFilter(365),
                       ),
                     ],
@@ -1184,7 +1192,7 @@ class _FilterOptionsSheetState extends State<_FilterOptionsSheet> {
                   const Divider(),
                   const SizedBox(height: 24),
                   Text(
-                    'Période personnalisée',
+                    AppLocalizations.of(context)!.customPeriod,
                     style: AppTypography.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 16),
@@ -1192,7 +1200,7 @@ class _FilterOptionsSheetState extends State<_FilterOptionsSheet> {
                     children: [
                       Expanded(
                         child: _DateButton(
-                          label: 'Date début',
+                          label: AppLocalizations.of(context)!.startDate,
                           date: _startDate,
                           onTap: () => _selectDate(true),
                         ),
@@ -1200,7 +1208,7 @@ class _FilterOptionsSheetState extends State<_FilterOptionsSheet> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _DateButton(
-                          label: 'Date fin',
+                          label: AppLocalizations.of(context)!.endDate,
                           date: _endDate,
                           onTap: () => _selectDate(false),
                         ),
@@ -1216,7 +1224,7 @@ class _FilterOptionsSheetState extends State<_FilterOptionsSheet> {
                             widget.onClearFilter();
                             Navigator.pop(context);
                           },
-                          child: const Text('Réinitialiser'),
+                          child: Text(AppLocalizations.of(context)!.reset),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -1226,7 +1234,7 @@ class _FilterOptionsSheetState extends State<_FilterOptionsSheet> {
                             widget.onApplyFilter(_startDate, _endDate);
                             Navigator.pop(context);
                           },
-                          child: const Text('Appliquer'),
+                          child: Text(AppLocalizations.of(context)!.apply),
                         ),
                       ),
                     ],
