@@ -12,6 +12,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/money_card.dart';
 import '../../../../core/widgets/transaction_tile.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
 import '../../../transaction/presentation/screens/add_transaction_screen.dart';
@@ -40,7 +41,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: userAsync.when(
-          data: (user) => Text('Bonjour ${user?.name ?? ""}'), // ✨ NOUVEAU
+          data: (user) {
+            final authUser = ref.watch(authProvider).user;
+            final name = authUser != null ? '${authUser.firstName}' : (user?.name ?? "");
+            return Text('Bonjour $name 👋');
+          },
           loading: () => const Text('Chargement...'),
           error: (_, __) => const Text('Mony'),
         ),

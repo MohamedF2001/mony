@@ -2,6 +2,7 @@
 
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../entities/answer.dart';
 import '../entities/financial_profile.dart';
 import '../repositories/financial_profile_repository.dart';
 
@@ -11,8 +12,9 @@ class SaveProfile {
   SaveProfile(this.repository);
 
   Future<Either<Failure, FinancialProfile>> call(
-      FinancialProfile profile,
-      ) async {
-    return await repository.saveProfile(profile);
+    FinancialProfile profile, {
+    List<Answer> answers = const [],
+  }) async {
+    return await repository.saveProfile(profile, answers: answers);
   }
 }

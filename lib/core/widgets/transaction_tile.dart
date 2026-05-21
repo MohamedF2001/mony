@@ -103,7 +103,7 @@ class TransactionTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          transaction.category,
+                          transaction.displayCategoryName,
                           style: AppTypography.textTheme.titleMedium,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -137,13 +137,13 @@ class TransactionTile extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                     /* const SizedBox(height: 4),
                       Text(
                         transaction.date.toFormattedDate(),
                         style: AppTypography.textTheme.labelSmall?.copyWith(
                           color: AppColors.textTertiary,
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ],

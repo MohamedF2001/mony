@@ -23,7 +23,8 @@ class _AddBudgetDialogState extends ConsumerState<AddBudgetDialog> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
 
-  String? _selectedCategory;
+  String? _selectedCategoryId;
+  String? _selectedCategoryName;
   BudgetPeriod _selectedPeriod = BudgetPeriod.monthly;
   bool _isLoading = false;
 
@@ -31,7 +32,8 @@ class _AddBudgetDialogState extends ConsumerState<AddBudgetDialog> {
   void initState() {
     super.initState();
     if (widget.budget != null) {
-      _selectedCategory = widget.budget!.category;
+      _selectedCategoryId = widget.budget!.category;
+      _selectedCategoryName = widget.budget!.categoryName;
       _selectedPeriod = widget.budget!.period;
       _amountController.text = widget.budget!.amount.toString();
     }
@@ -88,13 +90,13 @@ class _AddBudgetDialogState extends ConsumerState<AddBudgetDialog> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  value: categories.any((c) => c.id == _selectedCategoryId) ? _selectedCategoryId : null,
                   decoration: const InputDecoration(
                     hintText: 'Sélectionnez',
                   ),
                   items: categories.map((category) {
                     return DropdownMenuItem(
-                      value: category.name,
+                      value: category.id,
                       child: Row(
                         children: [
                           Icon(category.icon, size: 20, color: category.color),
@@ -105,7 +107,12 @@ class _AddBudgetDialogState extends ConsumerState<AddBudgetDialog> {
                     );
                   }).toList(),
                   onChanged: (value) {
-                    setState(() => _selectedCategory = value);
+                    if (value != null) {
+                      setState(() {
+                        _selectedCategoryId = value;
+                        _selectedCategoryName = categories.firstWhere((c) => c.id == value).name;
+                      });
+                    }
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -225,7 +232,8 @@ class _AddBudgetDialogState extends ConsumerState<AddBudgetDialog> {
 
     final budget = Budget(
       id: widget.budget?.id,
-      category: _selectedCategory!,
+      category: _selectedCategoryId!, // Envoi de l'ID technique
+      categoryName: _selectedCategoryName, // Conservation du nom pour l'UI
       amount: double.parse(_amountController.text),
       period: _selectedPeriod,
       startDate: startDate,
@@ -241,7 +249,9 @@ class _AddBudgetDialogState extends ConsumerState<AddBudgetDialog> {
 
     if (!mounted) return;
 
-    Navigator.pop(context);
+    if (success) {
+      Navigator.pop(context);
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

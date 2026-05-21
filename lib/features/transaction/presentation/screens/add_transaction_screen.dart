@@ -28,7 +28,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   final _descriptionController = TextEditingController();
 
   TransactionType _selectedType = TransactionType.expense;
-  String? _selectedCategory;
+  String? _selectedCategory; // Stocke l'ID de la catégorie (ObjectId)
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
 
@@ -37,7 +37,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     super.initState();
     if (widget.transaction != null) {
       _selectedType = widget.transaction!.type;
-      _selectedCategory = widget.transaction!.category;
+      _selectedCategory = widget.transaction!.category; // Reçoit l'ID
       _selectedDate = widget.transaction!.date;
       _amountController.text = widget.transaction!.amount.toString();
       _descriptionController.text = widget.transaction!.description ?? '';
@@ -196,7 +196,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                           runSpacing: 8,
                           children: filteredCategories.map((category) {
                             final isSelected =
-                                _selectedCategory == category.name;
+                                _selectedCategory == category.id; // Correction: comparaison par ID
                             return _CategoryChip(
                               label: category.name,
                               icon: category.icon,
@@ -204,7 +204,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                               isSelected: isSelected,
                               onTap: () {
                                 setState(() {
-                                  _selectedCategory = category.name;
+                                  _selectedCategory = category.id; // Correction: stocke l'ID
                                 });
                               },
                             );
@@ -351,7 +351,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final transaction = Transaction(
       id: widget.transaction?.id,
       date: _selectedDate,
-      category: _selectedCategory!,
+      category: _selectedCategory!, // Contient l'ID
       amount: double.parse(_amountController.text),
       type: _selectedType,
       description: _descriptionController.text.isEmpty

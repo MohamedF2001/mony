@@ -1,10 +1,9 @@
 // lib/features/transaction/presentation/providers/transaction_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mony/features/transaction/data/datasources/transaction_local_datasources.dart';
-import '../../data/models/transaction_model.dart';
-import '../../data/repositories/transaction_repository_impl.dart';
+import '../../../../core/providers/api_providers.dart';
+import '../../data/datasources/transaction_remote_datasource.dart';
+import '../../data/repositories/transaction_api_repository_impl.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../../domain/usecases/add_transaction.dart';
@@ -12,21 +11,16 @@ import '../../domain/usecases/delete_transaction.dart';
 import '../../domain/usecases/get_transactions.dart';
 import '../../domain/usecases/update_transaction.dart';
 
-// Data Source Provider
-final transactionBoxProvider = Provider<Box<TransactionModel>>((ref) {
-  return Hive.box<TransactionModel>('transactions');
-});
-
 final transactionLocalDataSourceProvider =
-    Provider<TransactionLocalDataSource>((ref) {
-  final box = ref.watch(transactionBoxProvider);
-  return TransactionLocalDataSourceImpl(box);
+    Provider<TransactionRemoteDataSource>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return TransactionRemoteDataSourceImpl(apiClient);
 });
 
 // Repository Provider
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final dataSource = ref.watch(transactionLocalDataSourceProvider);
-  return TransactionRepositoryImpl(dataSource);
+  return TransactionApiRepositoryImpl(dataSource);
 });
 
 // Use Cases Providers

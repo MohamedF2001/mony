@@ -9,7 +9,8 @@ enum BudgetPeriod {
 
 class Budget extends Equatable {
   final String? id;
-  final String category;
+  final String category; // ID de la catégorie
+  final String? categoryName; // Nom pour l'affichage
   final double amount;
   final BudgetPeriod period;
   final DateTime startDate;
@@ -20,6 +21,7 @@ class Budget extends Equatable {
   const Budget({
     this.id,
     required this.category,
+    this.categoryName,
     required this.amount,
     required this.period,
     required this.startDate,
@@ -30,7 +32,7 @@ class Budget extends Equatable {
 
   double getSpentAmount(List transactions) {
     return transactions
-        .where((t) => t.category == category && t.date.isAfter(startDate))
+        .where((t) => (t.category == category || t.categoryName == categoryName) && t.date.isAfter(startDate))
         .fold(0.0, (sum, t) => sum + t.amount);
   }
 
@@ -50,6 +52,7 @@ class Budget extends Equatable {
   Budget copyWith({
     String? id,
     String? category,
+    String? categoryName,
     double? amount,
     BudgetPeriod? period,
     DateTime? startDate,
@@ -60,6 +63,7 @@ class Budget extends Equatable {
     return Budget(
       id: id ?? this.id,
       category: category ?? this.category,
+      categoryName: categoryName ?? this.categoryName,
       amount: amount ?? this.amount,
       period: period ?? this.period,
       startDate: startDate ?? this.startDate,
@@ -73,6 +77,7 @@ class Budget extends Equatable {
   List<Object?> get props => [
         id,
         category,
+        categoryName,
         amount,
         period,
         startDate,

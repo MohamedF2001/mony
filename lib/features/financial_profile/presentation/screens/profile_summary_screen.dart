@@ -655,7 +655,18 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
       return;
     }
 
-    // Sauvegarder le profil dans l'utilisateur
+    final saved = await notifier.saveProfileToStorage();
+    if (!saved) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erreur lors de la sauvegarde du profil'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     await ref.read(userProvider.notifier).updateFinancialProfile(profile);
 
     if (!mounted) return;
