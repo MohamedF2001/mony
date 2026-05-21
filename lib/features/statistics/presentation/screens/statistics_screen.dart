@@ -602,6 +602,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../export/presentation/widgets/export_service.dart';
 import '../providers/statistics_providers.dart';
 import '../widgets/period_selector.dart';

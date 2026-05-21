@@ -32,25 +32,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       OnboardingPageData(
         title: l10n.welcome,
         description: l10n.welcomeDescription,
-        image: 'assets/images/onboarding1.png',
+        icon: Icons.account_balance_wallet,
+        //image: 'assets/images/onboarding1.png',
         color: const Color(0xFF2D6CFF),
       ),
       OnboardingPageData(
         title: l10n.trackExpenses,
         description: l10n.trackExpensesDescription,
-        image: 'assets/images/onboarding2.png',
+        icon: Icons.analytics,
+        //image: 'assets/images/onboarding2.png',
         color: const Color(0xFF00D09C),
       ),
       OnboardingPageData(
         title: l10n.manageBudgets,
         description: l10n.manageBudgetsDescription,
-        image: 'assets/images/onboarding3.png',
+        icon: Icons.trending_up,
+        //image: 'assets/images/onboarding3.png',
         color: const Color(0xFFFF6B6B),
       ),
       OnboardingPageData(
         title: l10n.analyzeFinances,
         description: l10n.analyzeFinancesDescription,
-        image: 'assets/images/onboarding4.png',
+        icon: Icons.psychology,
+        //image: 'assets/images/onboarding4.png',
         color: const Color(0xFF9C27B0),
       ),
     ];
