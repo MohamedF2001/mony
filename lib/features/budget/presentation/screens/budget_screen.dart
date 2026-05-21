@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
@@ -15,13 +16,14 @@ class BudgetScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final budgetState = ref.watch(budgetProvider);
     final budgetsWithSpending = ref.watch(budgetWithSpendingProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Budgets'),
+        title: Text(l10n.budgets),
         /*actions: [
           IconButton(
             onPressed: () {
@@ -36,18 +38,15 @@ class BudgetScreen extends ConsumerWidget {
         backgroundColor: Colors.blue,
         onPressed: () => _showAddBudgetDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text('Nouveau budget'),
+        label: Text(l10n.newBudget),
       ),
       body: budgetState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : budgetsWithSpending.isEmpty
-              ? const EmptyState(
+              ? EmptyState(
                   icon: Icons.account_balance_wallet_outlined,
-                  title: 'Aucun budget',
-                  subtitle:
-                      'Créez votre premier budget pour suivre vos dépenses',
-                  //actionLabel: 'Créer un budget',
-                  //onAction: () => _showAddBudgetDialog(context),
+                  title: l10n.noDataAvailable, // Assuming this for empty budget
+                  subtitle: l10n.startByAddingTransaction, // Or similar
                 )
               : ListView(
                   padding: const EdgeInsets.all(16),
@@ -59,7 +58,7 @@ class BudgetScreen extends ConsumerWidget {
 
                     // Budgets List
                     Text(
-                      'Vos budgets',
+                      l10n.budgets,
                       style: AppTypography.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -98,12 +97,13 @@ class BudgetScreen extends ConsumerWidget {
   }
 
   void _deleteBudget(BuildContext context, WidgetRef ref, budget) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer le budget'),
+        title: Text(l10n.deleteBudget),
         content: Text(
-          'Êtes-vous sûr de vouloir supprimer le budget "${budget.category}" ?',
+          '${l10n.confirmDelete} "${budget.category}" ?',
         ),
         actions: [
           TextButton(
@@ -115,7 +115,7 @@ class BudgetScreen extends ConsumerWidget {
               ),
             ),
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -125,14 +125,14 @@ class BudgetScreen extends ConsumerWidget {
               if (!context.mounted) return;
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Budget supprimé'),
+                SnackBar(
+                  content: Text(l10n.budgetDeleted),
                   backgroundColor: AppColors.success,
                 ),
               );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Supprimer'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -147,6 +147,7 @@ class _BudgetSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final totalBudget = budgets.fold(0.0, (sum, b) => sum + b['budget'].amount);
     final totalSpent = budgets.fold(0.0, (sum, b) => sum + b['spent']);
     final totalRemaining = totalBudget - totalSpent;
@@ -168,7 +169,7 @@ class _BudgetSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Budget Total',
+            'Total ${l10n.budgets}',
             style: AppTypography.textTheme.titleMedium?.copyWith(
               color: AppColors.white.withOpacity(0.9),
             ),
@@ -188,7 +189,7 @@ class _BudgetSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Dépensé',
+                      l10n.expenses,
                       style: AppTypography.textTheme.labelSmall?.copyWith(
                         color: AppColors.white.withOpacity(0.8),
                       ),

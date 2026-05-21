@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
@@ -633,6 +634,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final statisticsState = ref.watch(statisticsProvider);
     final totalIncome = ref.watch(periodTotalIncomeProvider);
     final totalExpense = ref.watch(periodTotalExpenseProvider);
@@ -641,7 +643,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Statistiques'),
+        title: Text(l10n.statistics),
         actions: [
           IconButton(
             onPressed: _showExportOptions,
@@ -688,7 +690,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                 children: [
                   Expanded(
                     child: _SummaryCard(
-                      title: 'Revenus',
+                      title: l10n.income,
                       amount: totalIncome,
                       icon: Icons.arrow_downward,
                       color: AppColors.income,
@@ -697,7 +699,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: _SummaryCard(
-                      title: 'Dépenses',
+                      title: l10n.expenses,
                       amount: totalExpense,
                       icon: Icons.arrow_upward,
                       color: AppColors.expense,
@@ -706,7 +708,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: _SummaryCard(
-                      title: 'Solde',
+                      title: l10n.totalBalance,
                       amount: balance,
                       icon: Icons.account_balance_wallet,
                       color: balance >= 0 ? AppColors.success : AppColors.error,
@@ -733,9 +735,9 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                 labelColor: AppColors.primary,
                 unselectedLabelColor: AppColors.textSecondary,
                 labelStyle: AppTypography.textTheme.labelLarge,
-                tabs: const [
-                  Tab(text: 'Par catégorie'),
-                  Tab(text: 'Tendances'),
+                tabs: [
+                  Tab(text: l10n.categories),
+                  Tab(text: l10n.trends),
                 ],
               ),
             ),
@@ -774,6 +776,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
   }
 
   void _showExportOptions() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -802,7 +805,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Exporter les données',
+                      l10n.exportData,
                       style: AppTypography.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -810,7 +813,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                     const SizedBox(height: 24),
                     _ExportOption(
                       icon: Icons.picture_as_pdf,
-                      title: 'Exporter en PDF',
+                      title: 'PDF',
                       subtitle: 'Rapport complet avec graphiques',
                       onTap: () {
                         Navigator.pop(context);
@@ -820,7 +823,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen>
                     const SizedBox(height: 12),
                     _ExportOption(
                       icon: Icons.table_chart,
-                      title: 'Exporter en Excel',
+                      title: 'Excel',
                       subtitle: 'Données brutes en CSV/XLSX',
                       onTap: () {
                         Navigator.pop(context);
@@ -909,6 +912,7 @@ class _CategoryBreakdownTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final categoryStats = ref.watch(categoryStatisticsProvider);
     final period = ref.watch(statisticsProvider).period;
 
@@ -939,7 +943,7 @@ class _CategoryBreakdownTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Text(
-                  'Détails par catégorie',
+                  '${l10n.categories} details',
                   style: AppTypography.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -948,10 +952,10 @@ class _CategoryBreakdownTab extends ConsumerWidget {
               categoryStats.when(
                 data: (stats) {
                   if (stats.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(40),
+                    return Padding(
+                      padding: const EdgeInsets.all(40),
                       child: Center(
-                        child: Text('Aucune dépense pour cette période'),
+                        child: Text(l10n.noDataAvailable),
                       ),
                     );
                   }
