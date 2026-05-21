@@ -23,6 +23,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final l10n = AppLocalizations.of(context)!;
     return [
       OnboardingPageData(
+        title: l10n.languageAndCurrency,
+        description: l10n.chooseLanguageAndCurrency,
+        icon: Icons.language,
+        color: const Color(0xFFFF9800),
+        isSettingsPage: true,
+      ),
+      OnboardingPageData(
         title: l10n.welcome,
         description: l10n.welcomeDescription,
         image: 'assets/images/onboarding1.png',
@@ -46,13 +53,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         image: 'assets/images/onboarding4.png',
         color: const Color(0xFF9C27B0),
       ),
-      OnboardingPageData(
-        title: l10n.languageAndCurrency,
-        description: l10n.chooseLanguageAndCurrency,
-        icon: Icons.language,
-        color: const Color(0xFFFF9800),
-        isSettingsPage: true,
-      ),
     ];
   }
 
@@ -64,6 +64,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _completeOnboarding() async {
     final navigationService = NavigationService(UserService());
+
+    // Mark preferences as set when completing onboarding
+    await ref.read(appSettingsProvider.notifier).markPreferencesAsSet();
+
     // CRITICAL: Save that onboarding has been seen
     await navigationService.markOnboardingAsSeen();
 
