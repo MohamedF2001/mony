@@ -1604,6 +1604,7 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../onboarding/presentation/screens/name_input_screen.dart';
 import '../providers/financial_profile_provider..dart';
 import '../../domain/entities/financial_trait.dart';
