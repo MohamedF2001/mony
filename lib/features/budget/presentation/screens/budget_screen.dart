@@ -103,7 +103,7 @@ class BudgetScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteBudget),
         content: Text(
-          '${l10n.confirmDelete} "${budget.category}" ?',
+          '${l10n.confirmDelete} "${budget.categoryName ?? budget.category}" ?',
         ),
         actions: [
           TextButton(

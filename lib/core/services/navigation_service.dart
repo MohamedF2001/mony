@@ -41,7 +41,8 @@ class NavigationService {
     // On vérifie en local d'abord, mais idéalement on devrait aussi vérifier l'API
     try {
       final apiClient = ApiClient(
-        baseUrl: 'http://10.0.2.2:3000/',
+        //baseUrl: 'http://10.0.2.2:3000/',
+        baseUrl: 'https://mony-api.vercel.app/',
         tokenService: _tokenService,
       );
       await apiClient.dio.get('/api/financial-profile');

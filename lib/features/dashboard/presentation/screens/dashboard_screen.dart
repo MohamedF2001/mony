@@ -435,7 +435,7 @@ class _TransactionDetailsSheet extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            transaction.category,
+                            transaction.categoryName!,
                             style: AppTypography.textTheme.titleLarge,
                           ),
                           Text(
