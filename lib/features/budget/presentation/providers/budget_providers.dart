@@ -1,8 +1,10 @@
 // lib/features/budget/presentation/providers/budget_providers.dart
 
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/api_providers.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
+import '../../../category/presentation/providers/category_providers.dart';
 import '../../data/datasources/budget_remote_datasource.dart';
 import '../../data/repositories/budget_api_repository_impl.dart';
 import '../../domain/entities/budget.dart';
@@ -183,15 +185,27 @@ final activeBudgetsProvider = Provider<List<Budget>>((ref) {
 final budgetWithSpendingProvider = Provider<List<Map<String, dynamic>>>((ref) {
   final budgets = ref.watch(activeBudgetsProvider);
   final transactions = ref.watch(filteredTransactionsProvider);
+  final categoryState = ref.watch(categoryProvider);
 
   return budgets.map((budget) {
-    final spent = budget.getSpentAmount(transactions);
-    final remaining = budget.getRemainingAmount(transactions);
-    final percentage = budget.getPercentageUsed(transactions);
-    final isOverBudget = budget.isOverBudget(transactions);
+    // Tenter de récupérer le nom de la catégorie si manquant
+    var effectiveBudget = budget;
+    if (budget.categoryName == null || budget.categoryName!.isEmpty) {
+      final category = categoryState.categories.firstWhereOrNull(
+        (c) => c.id == budget.category,
+      );
+      if (category != null) {
+        effectiveBudget = budget.copyWith(categoryName: category.name);
+      }
+    }
+
+    final spent = effectiveBudget.getSpentAmount(transactions);
+    final remaining = effectiveBudget.getRemainingAmount(transactions);
+    final percentage = effectiveBudget.getPercentageUsed(transactions);
+    final isOverBudget = effectiveBudget.isOverBudget(transactions);
 
     return {
-      'budget': budget,
+      'budget': effectiveBudget,
       'spent': spent,
       'remaining': remaining,
       'percentage': percentage,
@@ -199,4 +213,3 @@ final budgetWithSpendingProvider = Provider<List<Map<String, dynamic>>>((ref) {
     };
   }).toList();
 });
-

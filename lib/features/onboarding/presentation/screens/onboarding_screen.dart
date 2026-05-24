@@ -1,7 +1,6 @@
-// lib/features/onboarding/presentation/screens/onboarding_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/services/navigation_service.dart';
 import '../../../../core/services/user_service.dart';
@@ -23,35 +22,40 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final l10n = AppLocalizations.of(context)!;
     return [
       OnboardingPageData(
+        title: l10n.languageAndCurrency,
+        description: l10n.chooseLanguageAndCurrency,
+        lottieAsset: 'assets/lotties/l.json',
+        icon: Icons.language,
+        color: const Color(0xFFFF9800),
+        isSettingsPage: true,
+      ),
+      OnboardingPageData(
         title: l10n.welcome,
         description: l10n.welcomeDescription,
-        image: 'assets/images/onboarding1.png',
+        lottieAsset: 'assets/lotties/un.json',
+        icon: Icons.account_balance_wallet,
         color: const Color(0xFF2D6CFF),
       ),
       OnboardingPageData(
         title: l10n.trackExpenses,
         description: l10n.trackExpensesDescription,
-        image: 'assets/images/onboarding2.png',
+        lottieAsset: 'assets/lotties/de.json',
+        icon: Icons.analytics,
         color: const Color(0xFF00D09C),
       ),
       OnboardingPageData(
         title: l10n.manageBudgets,
         description: l10n.manageBudgetsDescription,
-        image: 'assets/images/onboarding3.png',
+        lottieAsset: 'assets/lotties/deux.json',
+        icon: Icons.trending_up,
         color: const Color(0xFFFF6B6B),
       ),
       OnboardingPageData(
         title: l10n.analyzeFinances,
         description: l10n.analyzeFinancesDescription,
-        image: 'assets/images/onboarding4.png',
+        lottieAsset: 'assets/lotties/finance.json',
+        icon: Icons.psychology,
         color: const Color(0xFF9C27B0),
-      ),
-      OnboardingPageData(
-        title: l10n.languageAndCurrency,
-        description: l10n.chooseLanguageAndCurrency,
-        icon: Icons.language,
-        color: const Color(0xFFFF9800),
-        isSettingsPage: true,
       ),
     ];
   }
@@ -64,6 +68,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _completeOnboarding() async {
     final navigationService = NavigationService(UserService());
+
+    // Mark preferences as set when completing onboarding
+    await ref.read(appSettingsProvider.notifier).markPreferencesAsSet();
+
     // CRITICAL: Save that onboarding has been seen
     await navigationService.markOnboardingAsSeen();
 
@@ -185,7 +193,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (page.image != null)
+          if (page.lottieAsset != null)
+            Lottie.asset(
+              page.lottieAsset!,
+              height: 200,
+              repeat: true,
+              reverse: false,
+              animate: true,
+            )
+          else if (page.image != null)
             Image.asset(
               page.image!,
               height: 200,
@@ -205,19 +221,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             )
           else
             Container(
-              width: 200,
-              height: 200,
+              width: 180,
+              height: 180,
               decoration: BoxDecoration(
                 color: page.color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 page.icon,
-                size: 100,
+                size: 80,
                 color: page.color,
               ),
             ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 20),
           Text(
             page.title,
             style: const TextStyle(
@@ -227,7 +243,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           if (page.isSettingsPage) ...[
             Text(
               page.description,
@@ -237,7 +253,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 22),
             _buildSelectionTile(
               title: l10n.language,
               value: settings.locale.languageCode == 'fr'
@@ -245,7 +261,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   : l10n.english,
               onTap: () => _showLanguageDialog(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildSelectionTile(
               title: l10n.currency,
               value: settings.currency,
@@ -375,6 +391,7 @@ class OnboardingPageData {
   final String title;
   final String description;
   final String? image;
+  final String? lottieAsset;
   final IconData? icon;
   final Color color;
   final bool isSettingsPage;
@@ -383,6 +400,7 @@ class OnboardingPageData {
     required this.title,
     required this.description,
     this.image,
+    this.lottieAsset,
     this.icon,
     required this.color,
     this.isSettingsPage = false,

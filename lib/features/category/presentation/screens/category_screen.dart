@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -38,20 +39,21 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
     final categoryState = ref.watch(categoryProvider);
     final incomeCategories = ref.watch(incomeCategoriesProvider);
     final expenseCategories = ref.watch(expenseCategoriesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Catégories'),
+        title: Text(l10n.categories),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.primary,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,
           labelStyle: AppTypography.textTheme.labelLarge,
-          tabs: const [
-            Tab(text: 'Revenus'),
-            Tab(text: 'Dépenses'),
+          tabs: [
+            Tab(text: l10n.incomeTab),
+            Tab(text: l10n.expensesTab),
           ],
         ),
       ),
@@ -62,27 +64,27 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
               : TransactionType.expense,
         ),
         icon: const Icon(Icons.add),
-        label: const Text('Nouvelle catégorie'),
+        label: Text(l10n.newCategory),
       ),
       body: categoryState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
               controller: _tabController,
               children: [
-                _buildCategoryList(incomeCategories, TransactionType.income),
-                _buildCategoryList(expenseCategories, TransactionType.expense),
+                _buildCategoryList(incomeCategories, TransactionType.income, l10n),
+                _buildCategoryList(expenseCategories, TransactionType.expense, l10n),
               ],
             ),
     );
   }
 
-  Widget _buildCategoryList(List<Category> categories, TransactionType type) {
+  Widget _buildCategoryList(List<Category> categories, TransactionType type, AppLocalizations l10n) {
     if (categories.isEmpty) {
       return EmptyState(
         icon: Icons.category_outlined,
-        title: 'Aucune catégorie',
-        subtitle: 'Commencez par ajouter une catégorie',
-        actionLabel: 'Ajouter',
+        title: l10n.noCategories,
+        subtitle: l10n.startByAddingCategory,
+        actionLabel: l10n.add,
         onAction: () => _showAddCategoryDialog(type),
       );
     }
@@ -120,10 +122,11 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
   }
 
   void _deleteCategory(Category category) {
+    final l10n = AppLocalizations.of(context)!;
     if (category.isDefault) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Impossible de supprimer une catégorie par défaut'),
+        SnackBar(
+          content: Text(l10n.cannotDeleteDefaultCategory),
           backgroundColor: AppColors.error,
         ),
       );
@@ -133,22 +136,21 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer la catégorie'),
+        title: Text(l10n.deleteCategory),
         content: Text(
-          'Êtes-vous sûr de vouloir supprimer "${category.name}" ?\n\n'
-          'Les transactions associées ne seront pas supprimées.',
+          l10n.confirmDeleteCategory(category.name),
         ),
         actions: [
           TextButton(
             style: ButtonStyle(
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -163,8 +165,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
                 SnackBar(
                   content: Text(
                     success
-                        ? 'Catégorie supprimée'
-                        : 'Erreur lors de la suppression',
+                        ? l10n.categoryDeleted
+                        : l10n.categoryDeleteError,
                   ),
                   backgroundColor:
                       success ? AppColors.success : AppColors.error,
@@ -172,7 +174,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
               );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Supprimer'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -194,6 +196,8 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -242,8 +246,8 @@ class _CategoryCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         category.type == TransactionType.income
-                            ? 'Revenu'
-                            : 'Dépense',
+                            ? l10n.income
+                            : l10n.expenses,
                         style: AppTypography.textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -260,7 +264,7 @@ class _CategoryCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'Par défaut',
+                            l10n.defaultLabel,
                             style: AppTypography.textTheme.labelSmall?.copyWith(
                               color: AppColors.primary,
                             ),

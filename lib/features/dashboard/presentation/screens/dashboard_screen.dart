@@ -14,6 +14,7 @@ import '../../../../core/widgets/money_card.dart';
 import '../../../../core/widgets/transaction_tile.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../financial_profile/presentation/utils/financial_profile_ui_utils.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
 import '../../../transaction/presentation/screens/add_transaction_screen.dart';
@@ -47,11 +48,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             final name = authUser != null ? '${authUser.firstName}' : (user?.name ?? "");
             return Text(AppLocalizations.of(context)!.hello(name));
           },
-          loading: () => Text(AppLocalizations.of(context)!.loading),
+          loading: () => const SizedBox.shrink(),
           error: (_, __) => const Text('Mony'),
         ),
         actions: [
-          // Bouton profil
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
@@ -67,230 +67,183 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       backgroundColor: AppColors.background,
       body: userAsync.when(
         data: (user) {
-          if (user == null) return Text(AppLocalizations.of(context)!.noUser);
+          if (user == null) {
+            return Center(child: Text(AppLocalizations.of(context)!.noUser));
+          }
 
-          return CustomScrollView(
-            slivers: [
-              // App Bar
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                elevation: 0,
-                backgroundColor: AppColors.white,
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /*Text(
-                      'Bonjour 👋',
-                      style: AppTypography.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Vérifie le profil via la route /api/financial-profile (dans loadUser)
+              await ref.read(userProvider.notifier).loadUser();
+              await ref.read(transactionProvider.notifier).loadTransactions();
+            },
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  floating: true,
+                  snap: true,
+                  elevation: 0,
+                  backgroundColor: AppColors.white,
+                  automaticallyImplyLeading: false,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //Text(user.name),
+                      //Text(user.financialProfile.toString()),
+                      Text(
+                        user.financialProfile != null
+                            ? AppLocalizations.of(context)!.youAreA(
+                            FinancialProfileUIUtils.getProfileLabel(user.financialProfile!.type, AppLocalizations.of(context)!)
+                        )
+                            : "Profil non défini", // Message plus clair que ----
+                        style: AppTypography.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: user.financialProfile != null
+                              ? FinancialProfileUIUtils.getColorForProfileType(user.financialProfile!.type)
+                              : AppColors.primary,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Bienvenue',
-                      style: AppTypography.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),*/
-                    Text(
-                      AppLocalizations.of(context)!
-                          .youAreA(user.financialProfile?.label ?? "---"),
-                      style: AppTypography.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                /*actions: [
-              IconButton(
-                onPressed: () {
-                  // Navigate to notifications
-                },
-                icon: const Icon(Icons.notifications_outlined),
-              ),
-              IconButton(
-                onPressed: () {
-                  // Navigate to profile
-                },
-                icon: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    size: 20,
-                    color: AppColors.white,
+                      /*Text(
+                        user.financialProfile != null 
+                          ? AppLocalizations.of(context)!.youAreA(
+                              FinancialProfileUIUtils.getProfileLabel(user.financialProfile!.type, AppLocalizations.of(context)!)
+                            )
+                          : "-oo--",
+                        style: AppTypography.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: user.financialProfile != null 
+                            ? FinancialProfileUIUtils.getColorForProfileType(user.financialProfile!.type)
+                            : AppColors.primary,
+                        ),
+                      ),*/
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-            ],*/
-              ),
 
-              // Content
-              SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-
-                    // Balance Card
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: BalanceCard(
-                        balance: balance,
-                        income: totalIncome,
-                        expense: totalExpense,
+                SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: BalanceCard(
+                          balance: balance,
+                          income: totalIncome,
+                          expense: totalExpense,
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Quick Actions
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: QuickActions(),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Statistics Cards
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: MoneyCard(
-                              title: AppLocalizations.of(context)!.income,
-                              amount: totalIncome,
-                              icon: Icons.arrow_downward,
-                              color: AppColors.income,
-                              gradient: AppColors.incomeGradient,
+                      const SizedBox(height: 24),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: QuickActions(),
+                      ),
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: MoneyCard(
+                                title: AppLocalizations.of(context)!.income,
+                                amount: totalIncome,
+                                icon: Icons.arrow_downward,
+                                color: AppColors.income,
+                                gradient: AppColors.incomeGradient,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MoneyCard(
-                              title: AppLocalizations.of(context)!.expenses,
-                              amount: totalExpense,
-                              icon: Icons.arrow_upward,
-                              color: AppColors.expense,
-                              gradient: AppColors.expenseGradient,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: MoneyCard(
+                                title: AppLocalizations.of(context)!.expenses,
+                                amount: totalExpense,
+                                icon: Icons.arrow_upward,
+                                color: AppColors.expense,
+                                gradient: AppColors.expenseGradient,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Spending Chart
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: SpendingChart(
-                        transactions: recentTransactions,
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: SpendingChart(
+                          transactions: recentTransactions,
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Recent Transactions Header
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.recentTransactions,
-                            style:
-                                AppTypography.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.recentTransactions,
+                              style: AppTypography.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const TransactionListScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(AppLocalizations.of(context)!.seeAll),
-                          ),
-                        ],
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TransactionListScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text(AppLocalizations.of(context)!.seeAll),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: 12),
-                  ],
-                ),
-              ),
-
-              // Recent Transactions List
-              if (transactionState.isLoading)
-                const SliverFillRemaining(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              else if (recentTransactions.isEmpty)
-                SliverFillRemaining(
-                  child: EmptyState(
-                    icon: Icons.receipt_long_outlined,
-                    title: AppLocalizations.of(context)!.noTransaction,
-                    subtitle:
-                        AppLocalizations.of(context)!.startByAddingTransaction,
-                  ),
-                )
-              else
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                      final transaction = recentTransactions[index];
-                      return TransactionTile(
-                        transaction: transaction,
-                        onTap: () {
-                          _showTransactionDetails(context, transaction);
-                        },
-                        onDelete: () {
-                          _deleteTransaction(transaction.id!);
-                        },
-                        onEdit: () {
-                          _editTransaction(transaction);
-                        },
-                      );
-                    },
-                    childCount: recentTransactions.length,
+                      const SizedBox(height: 12),
+                    ],
                   ),
                 ),
 
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 100),
-              ),
-            ],
+                if (transactionState.isLoading)
+                  const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (recentTransactions.isEmpty)
+                  SliverFillRemaining(
+                    child: EmptyState(
+                      icon: Icons.receipt_long_outlined,
+                      title: AppLocalizations.of(context)!.noTransaction,
+                      subtitle: AppLocalizations.of(context)!.startByAddingTransaction,
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final transaction = recentTransactions[index];
+                        return TransactionTile(
+                          transaction: transaction,
+                          onTap: () => _showTransactionDetails(context, transaction),
+                          onDelete: () => _deleteTransaction(transaction.id!),
+                          onEdit: () => _editTransaction(transaction),
+                        );
+                      },
+                      childCount: recentTransactions.length,
+                    ),
+                  ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
+            ),
           );
-
-            /*Column(
-            children: [
-              Text('Profil: ${user.financialProfile?.label ?? "Non défini"}'),
-              // Votre contenu...
-            ],
-          );*/
         },
-        loading: () => const CircularProgressIndicator(),
-        error: (err, _) => Text('${AppLocalizations.of(context)!.error}: $err'),
+        // Chargement centré au milieu de l'écran
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        error: (err, _) => Center(
+          child: Text('${AppLocalizations.of(context)!.error}: $err'),
+        ),
       ),
-
-
-
-
-
-      // Floating Action Button
       floatingActionButton: OpenContainer(
         closedElevation: 6,
         closedShape: const RoundedRectangleBorder(
@@ -305,11 +258,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             width: 56,
             height: 56,
             alignment: Alignment.center,
-            child: const Icon(
-              Icons.add,
-              color: AppColors.white,
-              size: 28,
-            ),
+            child: const Icon(Icons.add, color: AppColors.white, size: 28),
           );
         },
         openBuilder: (context, action) {
@@ -332,9 +281,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddTransactionScreen(
-          transaction: transaction,
-        ),
+        builder: (context) => AddTransactionScreen(transaction: transaction),
       ),
     );
   }
@@ -348,13 +295,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         content: Text(l10n.confirmDeleteTransaction),
         actions: [
           TextButton(
-            style: ButtonStyle(
-              shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
             onPressed: () => Navigator.pop(context),
             child: Text(l10n.cancel),
           ),
@@ -363,10 +303,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ref.read(transactionProvider.notifier).deleteTransaction(id);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.transactionDeleted),
-                  behavior: SnackBarBehavior.floating,
-                ),
+                SnackBar(content: Text(l10n.transactionDeleted)),
               );
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
@@ -378,15 +315,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-// Transaction Details Bottom Sheet
 class _TransactionDetailsSheet extends StatelessWidget {
   final Transaction transaction;
-
   const _TransactionDetailsSheet({required this.transaction});
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: const BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -394,133 +330,42 @@ class _TransactionDetailsSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 12),
           Container(
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.textTertiary.withOpacity(0.3),
+              color: AppColors.divider,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: (transaction.isIncome
-                                ? AppColors.income
-                                : AppColors.expense)
-                            .withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        transaction.isIncome
-                            ? Icons.arrow_downward
-                            : Icons.arrow_upward,
-                        color: transaction.isIncome
-                            ? AppColors.income
-                            : AppColors.expense,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            transaction.category,
-                            style: AppTypography.textTheme.titleLarge,
-                          ),
-                          Text(
-                            transaction.date.toFormattedDateLong(),
-                            style: AppTypography.textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 24),
-                _DetailRow(
-                  label: AppLocalizations.of(context)!.amount,
-                  value: transaction.amount.toFormattedMoney(),
-                  valueColor: transaction.isIncome
-                      ? AppColors.income
-                      : AppColors.expense,
-                ),
-                const SizedBox(height: 16),
-                _DetailRow(
-                  label: AppLocalizations.of(context)!.type,
-                  value: transaction.isIncome
-                      ? AppLocalizations.of(context)!.income
-                      : AppLocalizations.of(context)!.expenses,
-                ),
-                const SizedBox(height: 16),
-                _DetailRow(
-                  label: AppLocalizations.of(context)!.date,
-                  value: transaction.date.toFormattedDateLong(),
-                ),
-                if (transaction.description != null &&
-                    transaction.description!.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  _DetailRow(
-                    label: AppLocalizations.of(context)!.description,
-                    value: transaction.description!,
-                  ),
-                ],
-                const SizedBox(height: 32),
-              ],
+          Text(
+            transaction.displayCategoryName,
+            style: AppTypography.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            Formatters.formatMoney(transaction.amount),
+            style: AppTypography.textTheme.headlineMedium?.copyWith(
+              color: transaction.type == TransactionType.income ? AppColors.income : AppColors.expense,
+              fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 24),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.category_outlined),
+            title: const Text('Catégorie'),
+            trailing: Text(transaction.displayCategoryName),
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today_outlined),
+            title: const Text('Date'),
+            trailing: Text(Formatters.formatDate(transaction.date)),
+          ),
+          const SizedBox(height: 32),
         ],
       ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color? valueColor;
-
-  const _DetailRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppTypography.textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: AppTypography.textTheme.titleMedium?.copyWith(
-              color: valueColor ?? AppColors.textPrimary,
-            ),
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -17,17 +17,32 @@ class NavigationService {
 
   /// Détermine quelle route afficher au démarrage
   Future<String> getInitialRoute() async {
-    // 1. Vérifier si l'utilisateur est connecté (token présent)
+    final prefs = await SharedPreferences.getInstance();
+
+    // 0. Vérifier l'onboarding
+    final hasSeenOnboarding = prefs.getBool(_keyHasSeenOnboarding) ?? false;
+    if (!hasSeenOnboarding) {
+      return '/onboarding';
+    }
+
+    // 1. Vérifier si les préférences (langue/devise) sont définies
+    final hasSetPrefs = prefs.getBool('has_set_prefs') ?? false;
+    if (!hasSetPrefs) {
+      return '/initial-settings';
+    }
+
+    // 2. Vérifier si l'utilisateur est connecté (token présent)
     final hasToken = await _tokenService.hasToken();
     if (!hasToken) {
       return '/login';
     }
 
-    // 2. Vérifier si l'utilisateur a complété le profil financier
+    // 3. Vérifier si l'utilisateur a complété le profil financier
     // On vérifie en local d'abord, mais idéalement on devrait aussi vérifier l'API
     try {
       final apiClient = ApiClient(
-        baseUrl: 'http://10.0.2.2:3000/',
+        //baseUrl: 'http://10.0.2.2:3000/',
+        baseUrl: 'https://mony-api.vercel.app/',
         tokenService: _tokenService,
       );
       await apiClient.dio.get('/api/financial-profile');

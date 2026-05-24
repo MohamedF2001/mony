@@ -199,6 +199,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get newCategory => 'Nouvelle catégorie';
 
   @override
+  String get editCategory => 'Modifier la catégorie';
+
+  @override
   String get budgets => 'Budgets';
 
   @override
@@ -450,4 +453,170 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get select => 'Sélectionnez';
+
+  @override
+  String get personalInfo => 'Informations personnelles';
+
+  @override
+  String get financialProfileSection => 'Profil Financier';
+
+  @override
+  String get detailedAnalysis => 'Analyse détaillée';
+
+  @override
+  String get retakeQuestionnaire => 'Refaire le questionnaire';
+
+  @override
+  String get nameCannotBeEmpty => 'Le nom ne peut pas être vide';
+
+  @override
+  String get nameUpdated => 'Nom mis à jour avec succès';
+
+  @override
+  String get confirmLogout => 'Êtes-vous sûr de vouloir vous déconnecter ?';
+
+  @override
+  String get dailyReminders => 'Rappels quotidiens';
+
+  @override
+  String get dailyRemindersSubtitle => 'Notification à 9h chaque jour';
+
+  @override
+  String get pdfOrExcel => 'PDF or Excel';
+
+  @override
+  String get resetSubtitle => 'Supprimer toutes les données';
+
+  @override
+  String get aboutSubtitle => 'Version 2.0.0';
+
+  @override
+  String get aboutDescription =>
+      'Une application moderne de gestion financière.';
+
+  @override
+  String get developedBy => 'Développée par Mohamed Farid';
+
+  @override
+  String get cannotOpenMail => 'Impossible d\'ouvrir l\'application mail';
+
+  @override
+  String memberSince(Object date) {
+    return 'Membre depuis $date';
+  }
+
+  @override
+  String confidence(Object score) {
+    return 'Confiance : $score%';
+  }
+
+  @override
+  String get impulsivity => 'Impulsivité';
+
+  @override
+  String get discipline => 'Discipline';
+
+  @override
+  String get savingCapacity => 'Capacité d\'épargne';
+
+  @override
+  String get emotionalControl => 'Contrôle émotionnel';
+
+  @override
+  String get organizationLevel => 'Organisation';
+
+  @override
+  String get riskTolerance => 'Tolérance au risque';
+
+  @override
+  String get impulsiveSpenderLabel => 'Dépensier Impulsif';
+
+  @override
+  String get balancedAwareLabel => 'Équilibré Conscient';
+
+  @override
+  String get strategicSaverLabel => 'Économe Stratégique';
+
+  @override
+  String get overControllerLabel => 'Sur-contrôleur';
+
+  @override
+  String get financiallyDisorganizedLabel => 'Désorganisé Financier';
+
+  @override
+  String get cautiousOptimizerLabel => 'Prudent Optimisateur';
+
+  @override
+  String get noCategories => 'Aucune catégorie';
+
+  @override
+  String get startByAddingCategory => 'Commencez par ajouter une catégorie';
+
+  @override
+  String get add => 'Ajouter';
+
+  @override
+  String get categoryDeleted => 'Catégorie supprimée';
+
+  @override
+  String get categoryDeleteError => 'Erreur lors de la suppression';
+
+  @override
+  String confirmDeleteCategory(Object name) {
+    return 'Êtes-vous sûr de vouloir supprimer \"$name\" ?\n\nLes transactions associées ne seront pas supprimées.';
+  }
+
+  @override
+  String get defaultLabel => 'Par défaut';
+
+  @override
+  String get incomeTab => 'Revenus';
+
+  @override
+  String get expensesTab => 'Dépenses';
+
+  @override
+  String get categoryNameLabel => 'Nom de la catégorie';
+
+  @override
+  String get categoryNameHint => 'Ex: Courses, Restaurant...';
+
+  @override
+  String get categoryNameRequired => 'Le nom est requis';
+
+  @override
+  String get categoryNameMinLength => 'Minimum 2 caractères';
+
+  @override
+  String get iconLabel => 'Icône';
+
+  @override
+  String get colorLabel => 'Couleur';
+
+  @override
+  String get categoryUpdated => 'Catégorie mise à jour';
+
+  @override
+  String get categoryCreated => 'Catégorie créée';
+
+  @override
+  String get selectPeriod => 'Période';
+
+  @override
+  String get monthly => 'Mensuel';
+
+  @override
+  String get yearly => 'Annuel';
+
+  @override
+  String get amountHint => 'Montant du budget';
+
+  @override
+  String get selectCategoryRequired => 'Sélectionnez une catégorie';
+
+  @override
+  String get budgetUpdated => 'Budget mis à jour';
+
+  @override
+  String get budgetCreated => 'Budget créé';
 }

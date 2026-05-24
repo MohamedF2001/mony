@@ -19,17 +19,9 @@ class BudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final budget = budgetData['budget'];
-    // final spent = budgetData['spent'] as double;
-    // final remaining = budgetData['remaining'] as double;
     final budget = budgetData['budget'];
-  final spent = budgetData['spent'] as double;
-  final remaining = budgetData['remaining'] as double;
-  
-  // Debug temporaire
-  print('Type de spent: ${spent.runtimeType}');
-  print('Type de budget.amount: ${budget.amount.runtimeType}');
-  print('Type de remaining: ${remaining.runtimeType}');
+    final spent = budgetData['spent'] as double;
+    final remaining = budgetData['remaining'] as double;
     final percentage = budgetData['percentage'] as double;
     final isOverBudget = budgetData['isOverBudget'] as bool;
 
@@ -76,7 +68,7 @@ class BudgetCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        budget.category,
+                        budget.categoryName ?? budget.category,
                         style: AppTypography.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -129,7 +121,6 @@ class BudgetCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      //spent.toDouble().toCompactMoney(),
                       (spent as num).toCompactMoney(),
                       style: AppTypography.textTheme.titleSmall?.copyWith(
                         color: statusColor,
@@ -143,7 +134,6 @@ class BudgetCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      //budget.amount.toDouble().toCompactMoney(),
                       (budget.amount as num).toCompactMoney(),
                       style: AppTypography.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -192,8 +182,8 @@ class BudgetCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     isOverBudget
-      ? 'Budget dépassé de ${(spent - budget.amount).toDouble().toCompactMoney()}'
-      : 'Reste ${remaining.toDouble().toCompactMoney()}',
+                        ? 'Budget dépassé de ${(spent - budget.amount).toDouble().toCompactMoney()}'
+                        : 'Reste ${remaining.toDouble().toCompactMoney()}',
                     style: AppTypography.textTheme.bodySmall?.copyWith(
                       color: statusColor,
                       fontWeight: FontWeight.w600,
@@ -208,4 +198,3 @@ class BudgetCard extends StatelessWidget {
     );
   }
 }
-

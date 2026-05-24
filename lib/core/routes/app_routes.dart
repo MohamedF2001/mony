@@ -13,10 +13,12 @@ import '../../features/statistics/presentation/screens/statistics_screen.dart';
 import '../../features/budget/presentation/screens/budget_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/financial_profile/presentation/screens/questionnaire_screen.dart';
+import '../../features/settings/presentation/screens/initial_settings_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
+  static const String initialSettings = '/initial-settings';
   static const String login = '/login';
   static const String register = '/register';
   static const String setupProfile = '/setup-profile';
@@ -32,6 +34,7 @@ class AppRoutes {
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
         onboarding: (context) => const OnboardingScreen(),
+        initialSettings: (context) => const InitialSettingsScreen(),
         login: (context) => const LoginScreen(),
         register: (context) => const RegisterScreen(),
         questionnaire: (context) => const QuestionnaireScreen(),

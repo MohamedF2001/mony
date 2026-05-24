@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/widgets/custom_button.dart';
@@ -78,6 +79,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.category != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -97,7 +99,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                   children: [
                     Expanded(
                       child: Text(
-                        isEdit ? 'Modifier la catégorie' : 'Nouvelle catégorie',
+                        isEdit ? l10n.editCategory : l10n.newCategory,
                         style: AppTypography.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -138,18 +140,18 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                 // Name Input
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nom de la catégorie',
-                    hintText: 'Ex: Courses, Restaurant...',
+                  decoration: InputDecoration(
+                    labelText: l10n.categoryNameLabel,
+                    hintText: l10n.categoryNameHint,
                   ),
                   maxLength: 20,
                   textCapitalization: TextCapitalization.sentences,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Le nom est requis';
+                      return l10n.categoryNameRequired;
                     }
                     if (value.length < 2) {
-                      return 'Minimum 2 caractères';
+                      return l10n.categoryNameMinLength;
                     }
                     return null;
                   },
@@ -159,7 +161,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
 
                 // Icon Selection
                 Text(
-                  'Icône',
+                  l10n.iconLabel,
                   style: AppTypography.textTheme.titleSmall,
                 ),
                 const SizedBox(height: 12),
@@ -221,7 +223,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
 
                 // Color Selection
                 Text(
-                  'Couleur',
+                  l10n.colorLabel,
                   style: AppTypography.textTheme.titleSmall,
                 ),
                 const SizedBox(height: 12),
@@ -277,20 +279,20 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                     Expanded(
                       child: OutlinedButton(
                         style: ButtonStyle(
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
+                          shape: WidgetStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Annuler'),
+                        child: Text(l10n.cancel),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: CustomButton(
-                        label: isEdit ? 'Mettre à jour' : 'Créer',
+                        label: isEdit ? l10n.update : l10n.add,
                         onPressed: _saveCategory,
                         isLoading: _isLoading,
                       ),
@@ -306,6 +308,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
   }
 
   Future<void> _saveCategory() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -336,9 +339,9 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
         content: Text(
           success
               ? widget.category != null
-                  ? 'Catégorie mise à jour'
-                  : 'Catégorie créée'
-              : 'Une erreur s\'est produite',
+                  ? l10n.categoryUpdated
+                  : l10n.categoryCreated
+              : l10n.somethingWentWrong,
         ),
         backgroundColor: success ? AppColors.success : AppColors.error,
       ),

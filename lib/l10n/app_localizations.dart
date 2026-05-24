@@ -464,6 +464,12 @@ abstract class AppLocalizations {
   /// **'Nouvelle catégorie'**
   String get newCategory;
 
+  /// No description provided for @editCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la catégorie'**
+  String get editCategory;
+
   /// No description provided for @budgets.
   ///
   /// In fr, this message translates to:
@@ -949,6 +955,324 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Sélectionnez'**
   String get select;
+
+  /// No description provided for @personalInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations personnelles'**
+  String get personalInfo;
+
+  /// No description provided for @financialProfileSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil Financier'**
+  String get financialProfileSection;
+
+  /// No description provided for @detailedAnalysis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse détaillée'**
+  String get detailedAnalysis;
+
+  /// No description provided for @retakeQuestionnaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refaire le questionnaire'**
+  String get retakeQuestionnaire;
+
+  /// No description provided for @nameCannotBeEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom ne peut pas être vide'**
+  String get nameCannotBeEmpty;
+
+  /// No description provided for @nameUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom mis à jour avec succès'**
+  String get nameUpdated;
+
+  /// No description provided for @confirmLogout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir vous déconnecter ?'**
+  String get confirmLogout;
+
+  /// No description provided for @dailyReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels quotidiens'**
+  String get dailyReminders;
+
+  /// No description provided for @dailyRemindersSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notification à 9h chaque jour'**
+  String get dailyRemindersSubtitle;
+
+  /// No description provided for @pdfOrExcel.
+  ///
+  /// In fr, this message translates to:
+  /// **'PDF or Excel'**
+  String get pdfOrExcel;
+
+  /// No description provided for @resetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer toutes les données'**
+  String get resetSubtitle;
+
+  /// No description provided for @aboutSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version 2.0.0'**
+  String get aboutSubtitle;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une application moderne de gestion financière.'**
+  String get aboutDescription;
+
+  /// No description provided for @developedBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Développée par Mohamed Farid'**
+  String get developedBy;
+
+  /// No description provided for @cannotOpenMail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'ouvrir l\'application mail'**
+  String get cannotOpenMail;
+
+  /// No description provided for @memberSince.
+  ///
+  /// In fr, this message translates to:
+  /// **'Membre depuis {date}'**
+  String memberSince(Object date);
+
+  /// No description provided for @confidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance : {score}%'**
+  String confidence(Object score);
+
+  /// No description provided for @impulsivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impulsivité'**
+  String get impulsivity;
+
+  /// No description provided for @discipline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Discipline'**
+  String get discipline;
+
+  /// No description provided for @savingCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capacité d\'épargne'**
+  String get savingCapacity;
+
+  /// No description provided for @emotionalControl.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contrôle émotionnel'**
+  String get emotionalControl;
+
+  /// No description provided for @organizationLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisation'**
+  String get organizationLevel;
+
+  /// No description provided for @riskTolerance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tolérance au risque'**
+  String get riskTolerance;
+
+  /// No description provided for @impulsiveSpenderLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépensier Impulsif'**
+  String get impulsiveSpenderLabel;
+
+  /// No description provided for @balancedAwareLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équilibré Conscient'**
+  String get balancedAwareLabel;
+
+  /// No description provided for @strategicSaverLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Économe Stratégique'**
+  String get strategicSaverLabel;
+
+  /// No description provided for @overControllerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur-contrôleur'**
+  String get overControllerLabel;
+
+  /// No description provided for @financiallyDisorganizedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désorganisé Financier'**
+  String get financiallyDisorganizedLabel;
+
+  /// No description provided for @cautiousOptimizerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prudent Optimisateur'**
+  String get cautiousOptimizerLabel;
+
+  /// No description provided for @noCategories.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune catégorie'**
+  String get noCategories;
+
+  /// No description provided for @startByAddingCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencez par ajouter une catégorie'**
+  String get startByAddingCategory;
+
+  /// No description provided for @add.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get add;
+
+  /// No description provided for @categoryDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie supprimée'**
+  String get categoryDeleted;
+
+  /// No description provided for @categoryDeleteError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors de la suppression'**
+  String get categoryDeleteError;
+
+  /// No description provided for @confirmDeleteCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Êtes-vous sûr de vouloir supprimer \"{name}\" ?\n\nLes transactions associées ne seront pas supprimées.'**
+  String confirmDeleteCategory(Object name);
+
+  /// No description provided for @defaultLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par défaut'**
+  String get defaultLabel;
+
+  /// No description provided for @incomeTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus'**
+  String get incomeTab;
+
+  /// No description provided for @expensesTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses'**
+  String get expensesTab;
+
+  /// No description provided for @categoryNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de la catégorie'**
+  String get categoryNameLabel;
+
+  /// No description provided for @categoryNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex: Courses, Restaurant...'**
+  String get categoryNameHint;
+
+  /// No description provided for @categoryNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom est requis'**
+  String get categoryNameRequired;
+
+  /// No description provided for @categoryNameMinLength.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum 2 caractères'**
+  String get categoryNameMinLength;
+
+  /// No description provided for @iconLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Icône'**
+  String get iconLabel;
+
+  /// No description provided for @colorLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couleur'**
+  String get colorLabel;
+
+  /// No description provided for @categoryUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie mise à jour'**
+  String get categoryUpdated;
+
+  /// No description provided for @categoryCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie créée'**
+  String get categoryCreated;
+
+  /// No description provided for @selectPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période'**
+  String get selectPeriod;
+
+  /// No description provided for @monthly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensuel'**
+  String get monthly;
+
+  /// No description provided for @yearly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuel'**
+  String get yearly;
+
+  /// No description provided for @amountHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant du budget'**
+  String get amountHint;
+
+  /// No description provided for @selectCategoryRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez une catégorie'**
+  String get selectCategoryRequired;
+
+  /// No description provided for @budgetUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget mis à jour'**
+  String get budgetUpdated;
+
+  /// No description provided for @budgetCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget créé'**
+  String get budgetCreated;
 }
 
 class _AppLocalizationsDelegate

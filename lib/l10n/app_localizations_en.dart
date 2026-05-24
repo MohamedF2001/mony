@@ -199,6 +199,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newCategory => 'New Category';
 
   @override
+  String get editCategory => 'Edit Category';
+
+  @override
   String get budgets => 'Budgets';
 
   @override
@@ -448,4 +451,169 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get select => 'Select';
+
+  @override
+  String get personalInfo => 'Personal Information';
+
+  @override
+  String get financialProfileSection => 'Financial Profile';
+
+  @override
+  String get detailedAnalysis => 'Detailed Analysis';
+
+  @override
+  String get retakeQuestionnaire => 'Retake Questionnaire';
+
+  @override
+  String get nameCannotBeEmpty => 'Name cannot be empty';
+
+  @override
+  String get nameUpdated => 'Name updated successfully';
+
+  @override
+  String get confirmLogout => 'Are you sure you want to log out?';
+
+  @override
+  String get dailyReminders => 'Daily reminders';
+
+  @override
+  String get dailyRemindersSubtitle => 'Notification at 9:00 AM daily';
+
+  @override
+  String get pdfOrExcel => 'PDF or Excel';
+
+  @override
+  String get resetSubtitle => 'Delete all data';
+
+  @override
+  String get aboutSubtitle => 'Version 2.0.0';
+
+  @override
+  String get aboutDescription => 'A modern financial management application.';
+
+  @override
+  String get developedBy => 'Developed by Mohamed Farid';
+
+  @override
+  String get cannotOpenMail => 'Cannot open mail client';
+
+  @override
+  String memberSince(Object date) {
+    return 'Member since $date';
+  }
+
+  @override
+  String confidence(Object score) {
+    return 'Confidence: $score%';
+  }
+
+  @override
+  String get impulsivity => 'Impulsivity';
+
+  @override
+  String get discipline => 'Discipline';
+
+  @override
+  String get savingCapacity => 'Saving Capacity';
+
+  @override
+  String get emotionalControl => 'Emotional Control';
+
+  @override
+  String get organizationLevel => 'Organization';
+
+  @override
+  String get riskTolerance => 'Risk Tolerance';
+
+  @override
+  String get impulsiveSpenderLabel => 'Impulsive Spender';
+
+  @override
+  String get balancedAwareLabel => 'Balanced & Aware';
+
+  @override
+  String get strategicSaverLabel => 'Strategic Saver';
+
+  @override
+  String get overControllerLabel => 'Over-controller';
+
+  @override
+  String get financiallyDisorganizedLabel => 'Financially Disorganized';
+
+  @override
+  String get cautiousOptimizerLabel => 'Cautious Optimizer';
+
+  @override
+  String get noCategories => 'No categories';
+
+  @override
+  String get startByAddingCategory => 'Start by adding a category';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get categoryDeleted => 'Category deleted';
+
+  @override
+  String get categoryDeleteError => 'Error while deleting category';
+
+  @override
+  String confirmDeleteCategory(Object name) {
+    return 'Are you sure you want to delete \"$name\"?\n\nAssociated transactions will not be deleted.';
+  }
+
+  @override
+  String get defaultLabel => 'Default';
+
+  @override
+  String get incomeTab => 'Incomes';
+
+  @override
+  String get expensesTab => 'Expenses';
+
+  @override
+  String get categoryNameLabel => 'Category Name';
+
+  @override
+  String get categoryNameHint => 'E.g.: Groceries, Restaurant...';
+
+  @override
+  String get categoryNameRequired => 'Name is required';
+
+  @override
+  String get categoryNameMinLength => 'Minimum 2 characters';
+
+  @override
+  String get iconLabel => 'Icon';
+
+  @override
+  String get colorLabel => 'Color';
+
+  @override
+  String get categoryUpdated => 'Category updated';
+
+  @override
+  String get categoryCreated => 'Category created';
+
+  @override
+  String get selectPeriod => 'Period';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get yearly => 'Yearly';
+
+  @override
+  String get amountHint => 'Budget amount';
+
+  @override
+  String get selectCategoryRequired => 'Select a category';
+
+  @override
+  String get budgetUpdated => 'Budget updated';
+
+  @override
+  String get budgetCreated => 'Budget created';
 }
