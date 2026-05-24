@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mony/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
-//import '../../../../screens/onboard/on_board.dart';
+import '../../../../core/providers/user_provider.dart';
 import '../../../financial_profile/presentation/screens/questionnaire_screen.dart';
+import '../../../financial_profile/presentation/utils/financial_profile_ui_utils.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
 import '../../../category/presentation/providers/category_providers.dart';
 import '../../../budget/presentation/providers/budget_providers.dart';
@@ -25,161 +25,179 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _isDarkMode = false;
-  bool _notificationsEnabled = false;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider);
+    final userAsync = ref.watch(userProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(l10n.settings),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Profile Header
-          const ProfileHeader(),
+      body: userAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(child: Text('Error: $err')),
+        data: (user) => ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Profile Header
+            const ProfileHeader(),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // App Settings Section
-          _buildSection(
-            title: l10n.application,
-            children: [
-              _buildSwitchTile(
-                icon: Icons.dark_mode_outlined,
-                title: l10n.darkMode,
-                value: _isDarkMode,
-                onChanged: (value) {
-                  setState(() => _isDarkMode = value);
-                },
+            // Financial Profile Section
+            if (user?.financialProfile != null) ...[
+              _buildSection(
+                title: l10n.financialProfileSection,
+                children: [
+                  _buildSettingsTile(
+                    icon: FinancialProfileUIUtils.getIconForProfileType(user!.financialProfile!.type),
+                    title: FinancialProfileUIUtils.getProfileLabel(user.financialProfile!.type, l10n),
+                    subtitle: l10n.confidence(user.financialProfile!.confidenceScore.toInt()),
+                    onTap: () => Navigator.pushNamed(context, '/profile'),
+                  ),
+                  _buildSettingsTile(
+                    icon: Icons.refresh,
+                    title: l10n.retakeQuestionnaire,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const QuestionnaireScreen()),
+                    ),
+                  ),
+                ],
               ),
-              _buildSettingsTile(
-                icon: Icons.language,
-                title: l10n.language,
-                subtitle: settings.locale.languageCode == 'fr'
-                    ? l10n.french
-                    : l10n.english,
-                onTap: () => _showLanguageDialog(),
-              ),
-              _buildSettingsTile(
-                icon: Icons.monetization_on_outlined,
-                title: l10n.currency,
-                subtitle: settings.currency,
-                onTap: () => _showCurrencyDialog(),
-              ),
+              const SizedBox(height: 24),
             ],
-          ),
 
-          const SizedBox(height: 24),
-
-          // Data Section
-          _buildSection(
-            title: l10n.data,
-            children: [
-              _buildSettingsTile(
-                icon: Icons.file_download_outlined,
-                title: l10n.exportData,
-                subtitle: 'PDF / Excel',
-                onTap: _showExportDialog,
-              ),
-              _buildSettingsTile(
-                icon: Icons.backup_outlined,
-                title: l10n.backup,
-                subtitle: l10n.backup,
-                onTap: () {},
-              ),
-              _buildSettingsTile(
-                icon: Icons.restore,
-                title: l10n.restore,
-                subtitle: l10n.restore,
-                onTap: () {},
-              ),
-              _buildSettingsTile(
-                icon: Icons.delete_outline,
-                title: l10n.reset,
-                subtitle: l10n.resetConfirmation,
-                onTap: _confirmReset,
-                trailing: const Icon(Icons.warning, color: AppColors.error),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Support Section
-          _buildSection(
-            title: l10n.support,
-            children: [
-              _buildSettingsTile(
-                icon: Icons.help_outline,
-                title: l10n.helpCenter,
-                onTap: () {},
-              ),
-              _buildSettingsTile(
-                icon: Icons.feedback_outlined,
-                title: l10n.sendFeedback,
-                onTap: _sendFeedback,
-              ),
-              _buildSettingsTile(
-                icon: Icons.bug_report_outlined,
-                title: l10n.reportBug,
-                onTap: _sendFeedback,
-              ),
-              _buildSettingsTile(
-                icon: Icons.star_outline,
-                title: l10n.rateApp,
-                onTap: () {},
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // About Section
-          _buildSection(
-            title: l10n.about,
-            children: [
-              _buildSettingsTile(
-                icon: Icons.info_outline,
-                title: l10n.aboutMony,
-                subtitle: 'Version 2.0.0',
-                onTap: _showAboutDialog,
-              ),
-              _buildSettingsTile(
-                icon: Icons.privacy_tip_outlined,
-                title: l10n.privacyPolicy,
-                onTap: () {},
-              ),
-              _buildSettingsTile(
-                icon: Icons.gavel,
-                title: l10n.termsOfService,
-                onTap: () {},
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 32),
-
-          // Logout Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.error,
-                side: const BorderSide(color: AppColors.error),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: Text(l10n.logout),
+            // App Settings Section
+            _buildSection(
+              title: l10n.application,
+              children: [
+                _buildSwitchTile(
+                  icon: Icons.dark_mode_outlined,
+                  title: l10n.darkMode,
+                  value: _isDarkMode,
+                  onChanged: (value) {
+                    setState(() => _isDarkMode = value);
+                  },
+                ),
+                _buildSettingsTile(
+                  icon: Icons.language,
+                  title: l10n.language,
+                  subtitle: settings.locale.languageCode == 'fr'
+                      ? l10n.french
+                      : l10n.english,
+                  onTap: () => _showLanguageDialog(),
+                ),
+                _buildSettingsTile(
+                  icon: Icons.monetization_on_outlined,
+                  title: l10n.currency,
+                  subtitle: settings.currency,
+                  onTap: () => _showCurrencyDialog(),
+                ),
+              ],
             ),
-          ),
 
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 24),
+
+            // Data Section
+            _buildSection(
+              title: l10n.data,
+              children: [
+                _buildSettingsTile(
+                  icon: Icons.file_download_outlined,
+                  title: l10n.exportData,
+                  subtitle: 'PDF / Excel',
+                  onTap: _showExportDialog,
+                ),
+                _buildSettingsTile(
+                  icon: Icons.delete_outline,
+                  title: l10n.reset,
+                  subtitle: l10n.resetConfirmation,
+                  onTap: _confirmReset,
+                  trailing: const Icon(Icons.warning, color: AppColors.error),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Support Section
+            _buildSection(
+              title: l10n.support,
+              children: [
+                _buildSettingsTile(
+                  icon: Icons.help_outline,
+                  title: l10n.helpCenter,
+                  onTap: () {},
+                ),
+                _buildSettingsTile(
+                  icon: Icons.feedback_outlined,
+                  title: l10n.sendFeedback,
+                  onTap: _sendFeedback,
+                ),
+                _buildSettingsTile(
+                  icon: Icons.bug_report_outlined,
+                  title: l10n.reportBug,
+                  onTap: _sendFeedback,
+                ),
+                _buildSettingsTile(
+                  icon: Icons.star_outline,
+                  title: l10n.rateApp,
+                  onTap: () {},
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // About Section
+            _buildSection(
+              title: l10n.about,
+              children: [
+                _buildSettingsTile(
+                  icon: Icons.info_outline,
+                  title: l10n.aboutMony,
+                  subtitle: 'Version 2.0.0',
+                  onTap: _showAboutDialog,
+                ),
+                _buildSettingsTile(
+                  icon: Icons.privacy_tip_outlined,
+                  title: l10n.privacyPolicy,
+                  onTap: () {},
+                ),
+                _buildSettingsTile(
+                  icon: Icons.gavel,
+                  title: l10n.termsOfService,
+                  onTap: () {},
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+
+            // Logout Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: OutlinedButton(
+                onPressed: () {
+                  // Logout logic already in UserProfileScreen or AuthProvider
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.error,
+                  side: const BorderSide(color: AppColors.error),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(l10n.logout),
+              ),
+            ),
+
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -432,41 +450,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  /*Future<void> _resetAllData() async {
-    try {
-      // Clear all Hive boxes
-      await Hive.box('transactions').clear();
-      await Hive.box('categories').clear();
-      await Hive.box('budgets').clear();
-      await Hive.box('storage').clear();
-
-      // Refresh providers
-      ref.invalidate(transactionProvider);
-      ref.invalidate(categoryProvider);
-      ref.invalidate(budgetProvider);
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Données réinitialisées'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-
-      // Restart app or navigate to onboarding
-    } catch (e) {
-      if (!mounted) return;
-      print('Erreur lors de la réinitialisation des données: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur: $e'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-    }
-  }*/
-
   Future<void> _resetAllData() async {
     try {
       await ref.read(appResetServiceProvider).resetAll();
@@ -482,13 +465,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
         return const QuestionnaireScreen();
-        //return const OnboardingScreen();
       }));
     } catch (e) {
       print(e);
     }
   }
-
 
   Future<void> _sendFeedback() async {
     final Uri emailUri = Uri(
@@ -523,133 +504,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         const SizedBox(height: 8),
         const Text('Développée par Mohamed Farid'),
       ],
-    );
-  }
-}
-
-// Profile Edit Screen
-class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({super.key});
-
-  @override
-  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
-}
-
-class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final storageBox = Hive.box('storage');
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController.text = storageBox.get('userName', defaultValue: '');
-    _emailController.text = storageBox.get('userEmail', defaultValue: '');
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Modifier le profil'),
-        actions: [
-          TextButton(
-            onPressed: _saveProfile,
-            child: const Text('Enregistrer'),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          // Avatar
-          Center(
-            child: Stack(
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: AppColors.primaryGradient,
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    size: 60,
-                    color: AppColors.white,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: AppColors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 32),
-
-          // Name Field
-          TextFormField(
-            controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Nom',
-              prefixIcon: Icon(Icons.person_outline),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Email Field
-          TextFormField(
-            controller: _emailController,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
-          ),
-
-          /*const SizedBox(height: 16),
-
-          // Phone Field
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Téléphone',
-              prefixIcon: Icon(Icons.phone_outlined),
-            ),
-          ),*/
-        ],
-      ),
-    );
-  }
-
-  void _saveProfile() {
-    storageBox.put('userName', _nameController.text);
-    storageBox.put('userEmail', _emailController.text);
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profil mis à jour'),
-        backgroundColor: AppColors.success,
-      ),
     );
   }
 }

@@ -2,6 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/api_providers.dart';
+import '../../../../core/providers/user_provider.dart';
 import '../../domain/entities/question.dart';
 import '../../domain/entities/answer.dart';
 import '../../domain/entities/financial_profile.dart';
@@ -119,13 +120,15 @@ class QuestionnaireNotifier extends StateNotifier<QuestionnaireState> {
   final CalculateProfile calculateProfile;
   final GenerateAIFeedback generateAIFeedback;
   final SaveProfile saveProfile;
+  final Ref _ref;
 
   QuestionnaireNotifier({
     required this.getQuestions,
     required this.calculateProfile,
     required this.generateAIFeedback,
     required this.saveProfile,
-  }) : super(QuestionnaireState());
+    required Ref ref,
+  }) : _ref = ref, super(QuestionnaireState());
 
   Future<void> loadQuestions() async {
     state = state.copyWith(isLoading: true, error: null);
@@ -226,7 +229,15 @@ class QuestionnaireNotifier extends StateNotifier<QuestionnaireState> {
       answers: state.answers.values.toList(),
     );
 
-    return result.fold((failure) => false, (savedProfile) => true);
+    return result.fold(
+      (failure) => false, 
+      (savedProfile) {
+        // MISE À JOUR DE L'UTILISATEUR GLOBAL DANS LE PROVIDER
+        // Cela forcera le dashboard à se mettre à jour
+        _ref.read(userProvider.notifier).loadUser();
+        return true;
+      }
+    );
   }
 
   void reset() => state = QuestionnaireState();
@@ -238,5 +249,6 @@ final questionnaireProvider = StateNotifierProvider<QuestionnaireNotifier, Quest
     calculateProfile: ref.read(calculateProfileUseCaseProvider),
     generateAIFeedback: ref.read(generateAIFeedbackUseCaseProvider),
     saveProfile: ref.read(saveProfileUseCaseProvider),
+    ref: ref,
   );
 });
