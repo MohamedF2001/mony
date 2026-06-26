@@ -1688,7 +1688,10 @@ class _ProfileSummaryScreenState extends ConsumerState<ProfileSummaryScreen>
         ),
       );
 
-      Navigator.of(context).pushReplacementNamed('/home');
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/home',
+            (route) => false,
+      );
     } else {
       // Pas de nom → Aller à la saisie du nom
       Navigator.of(context).pushReplacement(

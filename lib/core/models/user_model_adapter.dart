@@ -20,13 +20,16 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       financialProfile: fields[2] as FinancialProfileModel?,
       createdAt: fields[3] as DateTime,
       updatedAt: fields[4] as DateTime?,
+      isPremium: fields[5] as bool? ?? false,
+      premiumUntil: fields[6] as DateTime?,
+      subscriptionType: fields[7] as String? ?? 'none',
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -36,6 +39,12 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(3)
       ..write(obj.createdAt)
       ..writeByte(4)
-      ..write(obj.updatedAt);
+      ..write(obj.updatedAt)
+      ..writeByte(5)
+      ..write(obj.isPremium)
+      ..writeByte(6)
+      ..write(obj.premiumUntil)
+      ..writeByte(7)
+      ..write(obj.subscriptionType);
   }
 }

@@ -23,9 +23,12 @@ import 'features/transaction/data/models/transaction_model.dart';
 import 'features/transaction/data/models/transaction_model_adapter.dart';
 import 'features/settings/presentation/providers/app_settings_provider.dart';
 import 'core/utils/formatters.dart';
+import 'features/insights/data/models/simulation_model.dart';
+import 'features/insights/data/models/simulation_model_adapter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //TurnablePdf.initPDFLoaders();
 
   final prefs = await SharedPreferences.getInstance();
 
@@ -44,6 +47,7 @@ void main() async {
   Hive.registerAdapter(AnswerModelAdapter());
   Hive.registerAdapter(FinancialProfileModelAdapter());
   Hive.registerAdapter(UserModelAdapter());
+  Hive.registerAdapter(SimulationModelAdapter());
 
   // Open boxes safely
   await Future.wait([
@@ -52,6 +56,7 @@ void main() async {
     Hive.openBox<BudgetModel>('budgets'),
     Hive.openBox('storage'),
     Hive.openBox<FinancialProfileModel>('financial_profiles'),
+    Hive.openBox<SimulationModel>('simulations'),
   ]);
 
   // Force portrait mode

@@ -33,74 +33,67 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       if (authState.user != null) {
         final authUser = authState.user!;
         FinancialProfile? financialProfile;
+        String name = '${authUser.firstName} ${authUser.lastName}';
+        bool isPremium = authUser.isPremium;
+        String subscriptionType = authUser.subscriptionType;
+        DateTime? premiumUntil = authUser.premiumUntil;
         
         final apiClient = _ref.read(apiClientProvider);
 
-        // 1. Récupérer le profil financier COMPLET via l'endpoint dédié
         try {
           final response = await apiClient.dio.get('/api/financial-profile');
-          /*if (response.data != null && response.data['success'] == true) {
-            final profileData = response.data['data']?['profile'];
+          if (response.data != null && response.data['success'] == true) {
+            final data = response.data['data'];
             
-            // On vérifie que c'est un objet valide (contenant au moins traitScores ou type)
-            if (profileData != null && profileData is Map && 
-                (profileData.containsKey('type') || profileData.containsKey('traitScores'))) {
+            // 1. Tenter de récupérer le profil depuis data.profile
+            final profileData = data?['profile'];
+            if (profileData != null && profileData is Map) {
               financialProfile = FinancialProfileModel.fromJson(
                 Map<String, dynamic>.from(profileData),
               ).toEntity();
-              developer.log('Profil financier récupéré avec succès: ${financialProfile.type}');
             }
-          }*/
-          try {
-            final response = await apiClient.dio.get('/api/financial-profile');
-            if (response.data != null && response.data['success'] == true) {
-              final profileData = response.data['data']?['profile'];
 
-              // LOG DE DÉBOGAGE POUR VOIR EXACTEMENT CE QUE DART REÇOIT
-              print('DEBUG: Profile Data received: $profileData');
-
-              if (profileData != null && profileData is Map) {
-                try {
-                  // On passe le Map directement au Model
+            // 2. Si non trouvé, tenter de le récupérer depuis data.user.financialProfile
+            final userData = data?['user'];
+            if (userData != null && userData is Map) {
+              if (financialProfile == null && userData['financialProfile'] != null) {
+                if (userData['financialProfile'] is Map) {
                   financialProfile = FinancialProfileModel.fromJson(
-                    Map<String, dynamic>.from(profileData),
+                    Map<String, dynamic>.from(userData['financialProfile']),
                   ).toEntity();
-                  developer.log('Profil financier parsé : ${financialProfile.type}');
-                } catch (e) {
-                  print('DEBUG: Error parsing profile: $e');
                 }
               }
+              
+              // Mettre à jour les infos utilisateur depuis la réponse API (plus à jour que authState)
+              if (userData['firstName'] != null) {
+                name = '${userData['firstName']} ${userData['lastName']}';
+              }
+              if (userData['isPremium'] != null) {
+                isPremium = userData['isPremium'];
+              }
+              if (userData['subscriptionType'] != null) {
+                subscriptionType = userData['subscriptionType'];
+              }
+              if (userData['premiumUntil'] != null) {
+                premiumUntil = DateTime.parse(userData['premiumUntil']);
+              }
             }
-          } catch (e) {
-            developer.log('Erreur API financial-profile: $e');
           }
-
         } catch (e) {
           developer.log('Erreur lors de la récupération du profil financier: $e');
         }
 
-        // 2. Fallback sur /api/auth/profile si le premier a échoué
-        if (financialProfile == null) {
-          try {
-            final response = await apiClient.dio.get('/api/auth/profile');
-            if (response.data != null && response.data['success'] == true) {
-              final profileData = response.data['data']?['financialProfile'];
-              if (profileData != null && profileData is Map && 
-                  (profileData.containsKey('type') || profileData.containsKey('traitScores'))) {
-                financialProfile = FinancialProfileModel.fromJson(
-                  Map<String, dynamic>.from(profileData),
-                ).toEntity();
-              }
-            }
-          } catch (_) {}
-        }
-
         final user = User(
           id: authUser.id,
-          name: '${authUser.firstName} ${authUser.lastName}',
+          name: name,
           financialProfile: financialProfile,
           createdAt: authUser.createdAt,
+          subscriptionType: subscriptionType,
+          isPremium: isPremium,
+          premiumUntil: premiumUntil,
         );
+
+        developer.log('User chargé avec profil: ${user.financialProfile?.type} et sub: ${user.subscriptionType}');
 
         // Sauvegarde locale pour la persistance
         await _userService.saveUser(user);

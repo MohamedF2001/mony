@@ -6,6 +6,9 @@ class AuthUser {
   final String email;
   final String? avatar;
   final DateTime createdAt;
+  final bool isPremium;
+  final DateTime? premiumUntil;
+  final String subscriptionType;
 
   AuthUser({
     required this.id,
@@ -15,6 +18,9 @@ class AuthUser {
     required this.email,
     this.avatar,
     required this.createdAt,
+    this.isPremium = false,
+    this.premiumUntil,
+    this.subscriptionType = 'none',
   });
 
   factory AuthUser.fromJson(Map<String, dynamic> json) {
@@ -26,6 +32,11 @@ class AuthUser {
       email: json['email'] as String,
       avatar: json['avatar'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      isPremium: json['isPremium'] as bool? ?? false,
+      premiumUntil: json['premiumUntil'] != null 
+          ? DateTime.parse(json['premiumUntil'] as String) 
+          : null,
+      subscriptionType: json['subscriptionType'] as String? ?? 'none',
     );
   }
 
@@ -38,6 +49,9 @@ class AuthUser {
       'email': email,
       'avatar': avatar,
       'createdAt': createdAt.toIso8601String(),
+      'isPremium': isPremium,
+      'premiumUntil': premiumUntil?.toIso8601String(),
+      'subscriptionType': subscriptionType,
     };
   }
 }

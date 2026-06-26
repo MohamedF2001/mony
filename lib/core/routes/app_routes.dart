@@ -14,6 +14,12 @@ import '../../features/budget/presentation/screens/budget_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/financial_profile/presentation/screens/questionnaire_screen.dart';
 import '../../features/settings/presentation/screens/initial_settings_screen.dart';
+import '../../features/premium/presentation/screens/premium_screen.dart';
+import '../../features/coaching/presentation/screens/coach_ai_screen.dart';
+import '../../features/coaching/presentation/screens/monthly_report_screen.dart';
+import '../../features/insights/presentation/screens/simulation_screen.dart';
+import '../../features/insights/presentation/screens/scenarios_screen.dart';
+import '../../features/academy/presentation/screens/academy_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -30,6 +36,14 @@ class AppRoutes {
   static const String statistics = '/statistics';
   static const String budgets = '/budgets';
   static const String settings = '/settings';
+  
+  // Premium Routes
+  static const String premium = '/premium';
+  static const String coachAi = '/coach-ai';
+  static const String monthlyReport = '/monthly-report';
+  static const String simulation = '/simulation';
+  static const String scenarios = '/scenarios';
+  static const String academy = '/academy';
 
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -45,5 +59,13 @@ class AppRoutes {
         statistics: (context) => const StatisticsScreen(),
         budgets: (context) => const BudgetScreen(),
         settings: (context) => const SettingsScreen(),
+        
+        // Premium
+        premium: (context) => const PremiumScreen(),
+        coachAi: (context) => const CoachAIScreen(),
+        monthlyReport: (context) => const MonthlyReportScreen(),
+        simulation: (context) => const SimulationScreen(),
+        scenarios: (context) => const ScenariosScreen(),
+        academy: (context) => const AcademyScreen(),
       };
 }

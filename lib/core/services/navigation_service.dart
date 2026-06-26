@@ -42,6 +42,7 @@ class NavigationService {
     try {
       final apiClient = ApiClient(
         //baseUrl: 'http://10.0.2.2:3000/',
+        //baseUrl:'http://192.168.0.189:3000/',
         baseUrl: 'https://mony-api.vercel.app/',
         tokenService: _tokenService,
       );

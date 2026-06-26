@@ -73,7 +73,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              // Vérifie le profil via la route /api/financial-profile (dans loadUser)
               await ref.read(userProvider.notifier).loadUser();
               await ref.read(transactionProvider.notifier).loadTransactions();
             },
@@ -88,34 +87,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   title: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      //Text(user.name),
-                      //Text(user.financialProfile.toString()),
-                      Text(
-                        user.financialProfile != null
-                            ? AppLocalizations.of(context)!.youAreA(
+                      if (user.financialProfile != null)
+                        Text(
+                          AppLocalizations.of(context)!.youAreA(
                             FinancialProfileUIUtils.getProfileLabel(user.financialProfile!.type, AppLocalizations.of(context)!)
+                          ),
+                          style: AppTypography.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: FinancialProfileUIUtils.getColorForProfileType(user.financialProfile!.type),
+                          ),
                         )
-                            : "Profil non défini", // Message plus clair que ----
-                        style: AppTypography.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: user.financialProfile != null
-                              ? FinancialProfileUIUtils.getColorForProfileType(user.financialProfile!.type)
-                              : AppColors.primary,
+                      else
+                        Text(
+                          "Profil non défini ${user.subscriptionType}" ,
+                          style: AppTypography.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
                         ),
-                      ),
-                      /*Text(
-                        user.financialProfile != null 
-                          ? AppLocalizations.of(context)!.youAreA(
-                              FinancialProfileUIUtils.getProfileLabel(user.financialProfile!.type, AppLocalizations.of(context)!)
-                            )
-                          : "-oo--",
-                        style: AppTypography.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: user.financialProfile != null 
-                            ? FinancialProfileUIUtils.getColorForProfileType(user.financialProfile!.type)
-                            : AppColors.primary,
-                        ),
-                      ),*/
                     ],
                   ),
                 ),
@@ -236,7 +225,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           );
         },
-        // Chargement centré au milieu de l'écran
         loading: () => const Center(
           child: CircularProgressIndicator(),
         ),
@@ -352,18 +340,30 @@ class _TransactionDetailsSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.category_outlined),
-            title: const Text('Catégorie'),
-            trailing: Text(transaction.displayCategoryName),
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today_outlined),
-            title: const Text('Date'),
-            trailing: Text(Formatters.formatDate(transaction.date)),
-          ),
-          const SizedBox(height: 32),
+          _DetailRow(label: AppLocalizations.of(context)!.date, value: Formatters.formatDate(transaction.date)),
+          if (transaction.description != null && transaction.description!.isNotEmpty)
+            _DetailRow(label: AppLocalizations.of(context)!.description, value: transaction.description!),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _DetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTypography.textTheme.bodyMedium?.copyWith(color: AppColors.primaryLight)),
+          Text(value, style: AppTypography.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
         ],
       ),
     );
