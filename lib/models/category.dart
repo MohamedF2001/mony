@@ -1,17 +1,8 @@
-import 'package:hive_flutter/hive_flutter.dart';
-//part 'category.g.dart';
-
-@HiveType(typeId: 2)
-class Category extends HiveObject {
-  @HiveField(0)
+class Category {
   final int id;
-  @HiveField(1)
   int? iconid;
-  @HiveField(2)
   String categoryName;
-  @HiveField(3)
   int type;
-  @HiveField(4)
   bool isDeleted = false;
 
   Category({
@@ -19,10 +10,10 @@ class Category extends HiveObject {
     required this.categoryName,
     required this.type,
   });
+
   setDeleted() {
     isDeleted = true;
-
-    save();
+    // La sauvegarde doit être gérée par l'API désormais
   }
 }
 

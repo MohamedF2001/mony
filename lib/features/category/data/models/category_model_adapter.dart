@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'category_model.dart';
 
 class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
