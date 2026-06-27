@@ -616,4 +616,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetCreated => 'Budget created';
+
+  @override
+  String get monyPremiumActive => 'Mony Premium Active';
+
+  @override
+  String get discoverMonyPremium => 'Discover Mony Premium';
+
+  @override
+  String get premiumFeaturesSubtitle => 'AI Coach, Simulations, Academy...';
+
+  @override
+  String get premiumActiveSubtitle => 'Access all your advanced features';
+
+  @override
+  String get subscriptionType => 'Subscription Type';
+
+  @override
+  String premiumUntil(Object date) {
+    return 'Premium until $date';
+  }
+
+  @override
+  String get lifetimePlan => 'Lifetime Plan';
+
+  @override
+  String get exclusiveFeatures => 'Exclusive Features';
+
+  @override
+  String get coachAi => 'AI Coach';
+
+  @override
+  String get simulations => 'Simulations';
+
+  @override
+  String get monthlyReports => 'Reports';
+
+  @override
+  String get academy => 'Academy';
 }
