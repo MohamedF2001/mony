@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/error/failures.dart';
 import '../../domain/entities/simulation.dart';
 import '../../domain/repositories/simulation_repository.dart';
 import '../datasources/simulation_remote_datasource.dart';
@@ -8,36 +10,50 @@ class SimulationRepositoryImpl implements SimulationRepository {
   SimulationRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Simulation> createSimulation(Simulation simulation) async {
-    final data = {
-      'name': simulation.name,
-      'parameters': {
-        'initialAmount': simulation.parameters.initialAmount,
-        'monthlyContribution': simulation.parameters.monthlyContribution,
-        'annualReturnRate': simulation.parameters.annualReturnRate,
-        'durationMonths': simulation.parameters.durationMonths,
-        'inflationRate': simulation.parameters.inflationRate,
-      },
-      'scenarioType': simulation.scenarioType.name,
-    };
+  Future<Either<Failure, Simulation>> createSimulation(
+      Simulation simulation) async {
+    try {
+      final data = {
+        'name': simulation.name,
+        'parameters': {
+          'initialAmount': simulation.parameters.initialAmount,
+          'monthlyContribution': simulation.parameters.monthlyContribution,
+          'annualReturnRate': simulation.parameters.annualReturnRate,
+          'durationMonths': simulation.parameters.durationMonths,
+          'inflationRate': simulation.parameters.inflationRate,
+        },
+        'scenarioType': simulation.scenarioType.name,
+      };
 
-    final response = await remoteDataSource.createSimulation(data);
-    final item = response['data']['simulation'];
-    
-    return _mapToEntity(item);
+      final response = await remoteDataSource.createSimulation(data);
+      final item = response['data']['simulation'];
+
+      return Right(_mapToEntity(item));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<List<Simulation>> getMySimulations() async {
-    final response = await remoteDataSource.getMySimulations();
-    final List list = response['data']['simulations'];
-    
-    return list.map((item) => _mapToEntity(item)).toList();
+  Future<Either<Failure, List<Simulation>>> getMySimulations() async {
+    try {
+      final response = await remoteDataSource.getMySimulations();
+      final List list = response['data']['simulations'];
+
+      return Right(list.map((item) => _mapToEntity(item)).toList());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<void> deleteSimulation(String id) async {
-    await remoteDataSource.deleteSimulation(id);
+  Future<Either<Failure, void>> deleteSimulation(String id) async {
+    try {
+      await remoteDataSource.deleteSimulation(id);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   Simulation _mapToEntity(Map<String, dynamic> item) {

@@ -1,4 +1,6 @@
+import 'package:dartz/dartz.dart';
 import '../../../../core/entities/user.dart';
+import '../../../../core/error/failures.dart';
 import '../../../academy/domain/entities/premium_content.dart';
 import '../../../financial_profile/data/models/profile_model.dart';
 import '../../../financial_profile/domain/entities/financial_profile.dart';
@@ -11,101 +13,130 @@ class PremiumRepositoryImpl implements PremiumRepository {
   PremiumRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<User> activatePremium(String type) async {
-    final response = await remoteDataSource.activatePremium(type);
-    final userData = response['data']['user'];
-    
-    // Extraire le profil financier s'il est présent dans la réponse
-    FinancialProfile? financialProfile;
-    if (userData['financialProfile'] != null && userData['financialProfile'] is Map) {
-      financialProfile = FinancialProfileModel.fromJson(
-        Map<String, dynamic>.from(userData['financialProfile']),
-      ).toEntity();
+  Future<Either<Failure, User>> activatePremium(String type) async {
+    try {
+      final response = await remoteDataSource.activatePremium(type);
+      final userData = response['data']['user'];
+
+      // Extraire le profil financier s'il est présent dans la réponse
+      FinancialProfile? financialProfile;
+      if (userData['financialProfile'] != null &&
+          userData['financialProfile'] is Map) {
+        financialProfile = FinancialProfileModel.fromJson(
+          Map<String, dynamic>.from(userData['financialProfile']),
+        ).toEntity();
+      }
+
+      return Right(User(
+        id: userData['_id'],
+        name: '${userData['firstName']} ${userData['lastName']}',
+        isPremium: userData['isPremium'] ?? false,
+        subscriptionType: userData['subscriptionType'] ?? 'none',
+        financialProfile: financialProfile, // On garde le profil !
+        premiumUntil: userData['premiumUntil'] != null
+            ? DateTime.parse(userData['premiumUntil'])
+            : null,
+        createdAt: DateTime.parse(userData['createdAt']),
+      ));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
     }
-    
-    return User(
-      id: userData['_id'],
-      name: '${userData['firstName']} ${userData['lastName']}',
-      isPremium: userData['isPremium'] ?? false,
-      subscriptionType: userData['subscriptionType'] ?? 'none',
-      financialProfile: financialProfile, // On garde le profil !
-      premiumUntil: userData['premiumUntil'] != null 
-          ? DateTime.parse(userData['premiumUntil']) 
-          : null,
-      createdAt: DateTime.parse(userData['createdAt']),
-    );
   }
 
   @override
-  Future<List<PremiumContent>> getPremiumContents({String? type, String? category}) async {
-    final response = await remoteDataSource.getPremiumContents(type: type, category: category);
-    final List list = response['data']['contents'];
-    
-    return list.map((item) => PremiumContent(
-      id: item['_id'],
-      title: item['title'],
-      description: item['description'],
-      type: _parseContentType(item['type']),
-      category: item['category'],
-      url: item['url'],
-      thumbnailUrl: item['thumbnailUrl'] ?? '',
-      isPremium: item['isPremium'] ?? true,
-      duration: item['duration'] ?? '',
-    )).toList();
+  Future<Either<Failure, List<PremiumContent>>> getPremiumContents({
+    String? type,
+    String? category,
+  }) async {
+    try {
+      final response =
+          await remoteDataSource.getPremiumContents(type: type, category: category);
+      final List list = response['data']['contents'];
+
+      return Right(list
+          .map((item) => PremiumContent(
+                id: item['_id'],
+                title: item['title'],
+                description: item['description'],
+                type: _parseContentType(item['type']),
+                category: item['category'],
+                url: item['url'],
+                thumbnailUrl: item['thumbnailUrl'] ?? '',
+                isPremium: item['isPremium'] ?? true,
+                duration: item['duration'] ?? '',
+              ))
+          .toList());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<List<PremiumContent>> getPdfs() async {
-    final response = await remoteDataSource.getPdfs();
-    final List list = response['data']['pdfs'];
-    
-    return list.map((item) => PremiumContent(
-      id: item['_id'],
-      title: item['title'],
-      description: '',
-      type: ContentType.ebook,
-      category: 'Ebooks',
-      url: item['pdfUrl'],
-      thumbnailUrl: '',
-      isPremium: true,
-      duration: '',
-    )).toList();
+  Future<Either<Failure, List<PremiumContent>>> getPdfs() async {
+    try {
+      final response = await remoteDataSource.getPdfs();
+      final List list = response['data']['pdfs'];
+
+      return Right(list
+          .map((item) => PremiumContent(
+                id: item['_id'],
+                title: item['title'],
+                description: '',
+                type: ContentType.ebook,
+                category: 'Ebooks',
+                url: item['pdfUrl'],
+                thumbnailUrl: '',
+                isPremium: true,
+                duration: '',
+              ))
+          .toList());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<PremiumContent> getPdfById(String id) async {
-    final response = await remoteDataSource.getPdfById(id);
-    final item = response['data']['pdf'];
-    
-    return PremiumContent(
-      id: item['_id'],
-      title: item['title'],
-      description: '',
-      type: ContentType.ebook,
-      category: 'Ebooks',
-      url: item['pdfUrl'],
-      thumbnailUrl: '',
-      isPremium: true,
-      duration: '',
-    );
+  Future<Either<Failure, PremiumContent>> getPdfById(String id) async {
+    try {
+      final response = await remoteDataSource.getPdfById(id);
+      final item = response['data']['pdf'];
+
+      return Right(PremiumContent(
+        id: item['_id'],
+        title: item['title'],
+        description: '',
+        type: ContentType.ebook,
+        category: 'Ebooks',
+        url: item['pdfUrl'],
+        thumbnailUrl: '',
+        isPremium: true,
+        duration: '',
+      ));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<PremiumContent> getContentById(String id) async {
-    final response = await remoteDataSource.getContentById(id);
-    final item = response['data']['content'];
-    
-    return PremiumContent(
-      id: item['_id'],
-      title: item['title'],
-      description: item['description'],
-      type: _parseContentType(item['type']),
-      category: item['category'],
-      url: item['url'],
-      thumbnailUrl: item['thumbnailUrl'] ?? '',
-      isPremium: item['isPremium'] ?? true,
-      duration: item['duration'] ?? '',
-    );
+  Future<Either<Failure, PremiumContent>> getContentById(String id) async {
+    try {
+      final response = await remoteDataSource.getContentById(id);
+      final item = response['data']['content'];
+
+      return Right(PremiumContent(
+        id: item['_id'],
+        title: item['title'],
+        description: item['description'],
+        type: _parseContentType(item['type']),
+        category: item['category'],
+        url: item['url'],
+        thumbnailUrl: item['thumbnailUrl'] ?? '',
+        isPremium: item['isPremium'] ?? true,
+        duration: item['duration'] ?? '',
+      ));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   ContentType _parseContentType(String type) {

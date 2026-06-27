@@ -27,6 +27,14 @@ class UserService {
     return false;
   }
 
+  bool hasFinancialProfile() {
+    return false;
+  }
+
+  bool hasName() {
+    return false;
+  }
+
   Future<void> deleteUser() async {
     // Devrait appeler l'API
   }
