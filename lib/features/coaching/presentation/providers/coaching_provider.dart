@@ -4,6 +4,8 @@ import '../../data/datasources/report_remote_datasource.dart';
 import '../../data/repositories/report_repository_impl.dart';
 import '../../domain/entities/financial_report.dart';
 import '../../domain/repositories/report_repository.dart';
+import '../../domain/usecases/generate_monthly_report.dart';
+import '../../domain/usecases/get_my_reports.dart';
 
 final reportRemoteDataSourceProvider = Provider<ReportRemoteDataSource>((ref) {
   final apiClient = ref.watch(apiClientProvider);
@@ -13,6 +15,17 @@ final reportRemoteDataSourceProvider = Provider<ReportRemoteDataSource>((ref) {
 final reportRepositoryProvider = Provider<ReportRepository>((ref) {
   final remoteDataSource = ref.watch(reportRemoteDataSourceProvider);
   return ReportRepositoryImpl(remoteDataSource);
+});
+
+final generateMonthlyReportUseCaseProvider =
+    Provider<GenerateMonthlyReport>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return GenerateMonthlyReport(repository);
+});
+
+final getMyReportsUseCaseProvider = Provider<GetMyReports>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return GetMyReports(repository);
 });
 
 class CoachingState {
@@ -44,36 +57,44 @@ class CoachingState {
 }
 
 class CoachingNotifier extends StateNotifier<CoachingState> {
-  final ReportRepository repository;
+  final GetMyReports getMyReportsUseCase;
+  final GenerateMonthlyReport generateMonthlyReportUseCase;
 
-  CoachingNotifier(this.repository) : super(CoachingState());
+  CoachingNotifier({
+    required this.getMyReportsUseCase,
+    required this.generateMonthlyReportUseCase,
+  }) : super(CoachingState());
 
   Future<void> fetchReports() async {
     state = state.copyWith(isLoading: true, error: null);
-    try {
-      final reports = await repository.getMyReports();
-      state = state.copyWith(reports: reports, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    final result = await getMyReportsUseCase();
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (reports) => state = state.copyWith(reports: reports, isLoading: false),
+    );
   }
 
   Future<void> generateReport(int month, int year) async {
     state = state.copyWith(isLoading: true, error: null);
-    try {
-      final report = await repository.generateMonthlyReport(month, year);
-      state = state.copyWith(
+    final result = await generateMonthlyReportUseCase(month, year);
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (report) => state = state.copyWith(
         reports: [report, ...state.reports],
         currentReport: report,
         isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+      ),
+    );
   }
 }
 
-final coachingProvider = StateNotifierProvider<CoachingNotifier, CoachingState>((ref) {
-  final repository = ref.watch(reportRepositoryProvider);
-  return CoachingNotifier(repository);
+final coachingProvider =
+    StateNotifierProvider<CoachingNotifier, CoachingState>((ref) {
+  final getMyReportsUseCase = ref.watch(getMyReportsUseCaseProvider);
+  final generateMonthlyReportUseCase =
+      ref.watch(generateMonthlyReportUseCaseProvider);
+  return CoachingNotifier(
+    getMyReportsUseCase: getMyReportsUseCase,
+    generateMonthlyReportUseCase: generateMonthlyReportUseCase,
+  );
 });

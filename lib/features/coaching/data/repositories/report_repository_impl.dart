@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/error/failures.dart';
 import '../../domain/entities/financial_report.dart';
 import '../../domain/repositories/report_repository.dart';
 import '../datasources/report_remote_datasource.dart';
@@ -8,17 +10,28 @@ class ReportRepositoryImpl implements ReportRepository {
   ReportRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<FinancialReport> generateMonthlyReport(int month, int year) async {
-    final response = await remoteDataSource.generateMonthlyReport(month, year);
-    final item = response['data']['report'];
-    return _mapToEntity(item);
+  Future<Either<Failure, FinancialReport>> generateMonthlyReport(
+    int month,
+    int year,
+  ) async {
+    try {
+      final response = await remoteDataSource.generateMonthlyReport(month, year);
+      final item = response['data']['report'];
+      return Right(_mapToEntity(item));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<List<FinancialReport>> getMyReports() async {
-    final response = await remoteDataSource.getMyReports();
-    final List list = response['data'] ?? [];
-    return list.map((item) => _mapToEntity(item)).toList();
+  Future<Either<Failure, List<FinancialReport>>> getMyReports() async {
+    try {
+      final response = await remoteDataSource.getMyReports();
+      final List list = response['data'] ?? [];
+      return Right(list.map((item) => _mapToEntity(item)).toList());
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   FinancialReport _mapToEntity(Map<String, dynamic> item) {

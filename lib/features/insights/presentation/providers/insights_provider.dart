@@ -4,8 +4,12 @@ import '../../data/datasources/simulation_remote_datasource.dart';
 import '../../data/repositories/simulation_repository_impl.dart';
 import '../../domain/entities/simulation.dart';
 import '../../domain/repositories/simulation_repository.dart';
+import '../../domain/usecases/create_simulation.dart';
+import '../../domain/usecases/delete_simulation.dart';
+import '../../domain/usecases/get_my_simulations.dart';
 
-final simulationRemoteDataSourceProvider = Provider<SimulationRemoteDataSource>((ref) {
+final simulationRemoteDataSourceProvider =
+    Provider<SimulationRemoteDataSource>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return SimulationRemoteDataSourceImpl(apiClient);
 });
@@ -13,6 +17,21 @@ final simulationRemoteDataSourceProvider = Provider<SimulationRemoteDataSource>(
 final simulationRepositoryProvider = Provider<SimulationRepository>((ref) {
   final remoteDataSource = ref.watch(simulationRemoteDataSourceProvider);
   return SimulationRepositoryImpl(remoteDataSource);
+});
+
+final createSimulationUseCaseProvider = Provider<CreateSimulation>((ref) {
+  final repository = ref.watch(simulationRepositoryProvider);
+  return CreateSimulation(repository);
+});
+
+final getMySimulationsUseCaseProvider = Provider<GetMySimulations>((ref) {
+  final repository = ref.watch(simulationRepositoryProvider);
+  return GetMySimulations(repository);
+});
+
+final deleteSimulationUseCaseProvider = Provider<DeleteSimulation>((ref) {
+  final repository = ref.watch(simulationRepositoryProvider);
+  return DeleteSimulation(repository);
 });
 
 class InsightsState {
@@ -44,47 +63,57 @@ class InsightsState {
 }
 
 class InsightsNotifier extends StateNotifier<InsightsState> {
-  final SimulationRepository repository;
+  final GetMySimulations getMySimulationsUseCase;
+  final CreateSimulation createSimulationUseCase;
+  final DeleteSimulation deleteSimulationUseCase;
 
-  InsightsNotifier(this.repository) : super(InsightsState());
+  InsightsNotifier({
+    required this.getMySimulationsUseCase,
+    required this.createSimulationUseCase,
+    required this.deleteSimulationUseCase,
+  }) : super(InsightsState());
 
   Future<void> fetchSimulations() async {
     state = state.copyWith(isLoading: true, error: null);
-    try {
-      final simulations = await repository.getMySimulations();
-      state = state.copyWith(simulations: simulations, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    final result = await getMySimulationsUseCase();
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (simulations) => state = state.copyWith(simulations: simulations, isLoading: false),
+    );
   }
 
   Future<void> createSimulation(Simulation simulation) async {
     state = state.copyWith(isLoading: true, error: null);
-    try {
-      final created = await repository.createSimulation(simulation);
-      state = state.copyWith(
+    final result = await createSimulationUseCase(simulation);
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (created) => state = state.copyWith(
         simulations: [created, ...state.simulations],
         currentSimulation: created,
         isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+      ),
+    );
   }
 
   Future<void> deleteSimulation(String id) async {
-    try {
-      await repository.deleteSimulation(id);
-      state = state.copyWith(
+    final result = await deleteSimulationUseCase(id);
+    result.fold(
+      (failure) => state = state.copyWith(error: failure.message),
+      (_) => state = state.copyWith(
         simulations: state.simulations.where((s) => s.id != id).toList(),
-      );
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+      ),
+    );
   }
 }
 
-final insightsProvider = StateNotifierProvider<InsightsNotifier, InsightsState>((ref) {
-  final repository = ref.watch(simulationRepositoryProvider);
-  return InsightsNotifier(repository);
+final insightsProvider =
+    StateNotifierProvider<InsightsNotifier, InsightsState>((ref) {
+  final getMySimulationsUseCase = ref.watch(getMySimulationsUseCaseProvider);
+  final createSimulationUseCase = ref.watch(createSimulationUseCaseProvider);
+  final deleteSimulationUseCase = ref.watch(deleteSimulationUseCaseProvider);
+  return InsightsNotifier(
+    getMySimulationsUseCase: getMySimulationsUseCase,
+    createSimulationUseCase: createSimulationUseCase,
+    deleteSimulationUseCase: deleteSimulationUseCase,
+  );
 });

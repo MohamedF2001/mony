@@ -1,7 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../premium/domain/repositories/premium_repository.dart';
 import '../../../premium/presentation/providers/premium_provider.dart';
 import '../../domain/entities/premium_content.dart';
+import '../../domain/usecases/get_content_by_id.dart';
+import '../../domain/usecases/get_pdf_by_id.dart';
+import '../../domain/usecases/get_pdfs.dart';
+import '../../domain/usecases/get_premium_contents.dart';
+
+final getPremiumContentsUseCaseProvider = Provider<GetPremiumContents>((ref) {
+  final repository = ref.watch(premiumRepositoryProvider);
+  return GetPremiumContents(repository);
+});
+
+final getPdfsUseCaseProvider = Provider<GetPdfs>((ref) {
+  final repository = ref.watch(premiumRepositoryProvider);
+  return GetPdfs(repository);
+});
+
+final getPdfByIdUseCaseProvider = Provider<GetPdfById>((ref) {
+  final repository = ref.watch(premiumRepositoryProvider);
+  return GetPdfById(repository);
+});
+
+final getContentByIdUseCaseProvider = Provider<GetContentById>((ref) {
+  final repository = ref.watch(premiumRepositoryProvider);
+  return GetContentById(repository);
+});
 
 class AcademyState {
   final List<PremiumContent> contents;
@@ -28,41 +51,45 @@ class AcademyState {
 }
 
 class AcademyNotifier extends StateNotifier<AcademyState> {
-  final PremiumRepository repository;
+  final GetPremiumContents getPremiumContentsUseCase;
+  final GetPdfs getPdfsUseCase;
 
-  AcademyNotifier(this.repository) : super(AcademyState());
+  AcademyNotifier({
+    required this.getPremiumContentsUseCase,
+    required this.getPdfsUseCase,
+  }) : super(AcademyState());
 
   Future<void> fetchContents({String? type, String? category}) async {
     state = state.copyWith(isLoading: true, error: null);
-    try {
-      final List<PremiumContent> allContents = [];
+    final List<PremiumContent> allContents = [];
 
-      // Fetch PDFs from the new API
-      if (type == null || type == 'ebook') {
-        try {
-          final pdfs = await repository.getPdfs();
-          allContents.addAll(pdfs);
-        } catch (e) {
-          // Log or handle error for PDFs specifically
-        }
-      }
-
-      // Fetch other contents from the existing API
-      try {
-        final contents = await repository.getPremiumContents(type: type, category: category);
-        allContents.addAll(contents);
-      } catch (e) {
-        // Log or handle error for premium contents specifically
-      }
-
-      state = state.copyWith(contents: allContents, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    // Fetch PDFs from the new API
+    if (type == null || type == 'ebook') {
+      final pdfsResult = await getPdfsUseCase();
+      pdfsResult.fold(
+        (failure) => null, // Handle failure if needed
+        (pdfs) => allContents.addAll(pdfs),
+      );
     }
+
+    // Fetch other contents from the existing API
+    final contentsResult =
+        await getPremiumContentsUseCase(type: type, category: category);
+    contentsResult.fold(
+      (failure) => null, // Handle failure if needed
+      (contents) => allContents.addAll(contents),
+    );
+
+    state = state.copyWith(contents: allContents, isLoading: false);
   }
 }
 
-final academyProvider = StateNotifierProvider<AcademyNotifier, AcademyState>((ref) {
-  final repository = ref.watch(premiumRepositoryProvider);
-  return AcademyNotifier(repository);
+final academyProvider =
+    StateNotifierProvider<AcademyNotifier, AcademyState>((ref) {
+  final getPremiumContentsUseCase = ref.watch(getPremiumContentsUseCaseProvider);
+  final getPdfsUseCase = ref.watch(getPdfsUseCaseProvider);
+  return AcademyNotifier(
+    getPremiumContentsUseCase: getPremiumContentsUseCase,
+    getPdfsUseCase: getPdfsUseCase,
+  );
 });
