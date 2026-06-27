@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'transaction_model.dart';
 
 class TransactionModelAdapter extends TypeAdapter<TransactionModel> {

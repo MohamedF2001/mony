@@ -159,7 +159,6 @@ class ExportToPdf {
         ),
       );
 
-      final pdfBytes = await pdf.save();
 
       // WEB: Download directly using printing package
       if (kIsWeb) {

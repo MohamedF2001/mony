@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
@@ -15,7 +14,6 @@ import '../../../budget/presentation/providers/budget_providers.dart';
 import '../../../category/presentation/providers/category_providers.dart';
 import '../../../financial_profile/domain/entities/financial_profile.dart';
 import '../../../financial_profile/domain/entities/financial_trait.dart';
-import '../../../financial_profile/presentation/screens/questionnaire_screen.dart';
 import '../../../settings/presentation/providers/app_reset_service_provider.dart';
 import '../../../settings/presentation/providers/app_settings_provider.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
@@ -114,7 +112,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
               children: [
                 _buildHeader(user, settings.locale.languageCode),
                 const SizedBox(height: 16),
-                _buildPremiumBanner(user),
+
+                // On affiche la bannière premium seulement si l'utilisateur N'EST PAS premium
+                if (!user.hasActivePremium)
+                  _buildPremiumBanner(),
+
                 const SizedBox(height: 24),
                 _buildPersonalInfoSection(user, l10n),
                 const SizedBox(height: 16),
@@ -134,7 +136,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  Widget _buildPremiumBanner(User user) {
+  Widget _buildPremiumBanner() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: InkWell(
@@ -142,29 +144,28 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: user.hasActivePremium ? Colors.amber[50] : AppColors.primary.withOpacity(0.05),
+            color: AppColors.primary.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: user.hasActivePremium ? Colors.amber : AppColors.primary, width: 1.5),
+            border: Border.all(color: AppColors.primary, width: 1.5),
           ),
           child: Row(
             children: [
-              Icon(user.hasActivePremium ? Icons.stars_rounded : Icons.workspace_premium_rounded, 
-                   color: user.hasActivePremium ? Colors.amber[800] : AppColors.primary),
+              const Icon(Icons.workspace_premium_rounded, color: AppColors.primary),
               const SizedBox(width: 12),
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user.hasActivePremium ? 'Mony Premium Actif' : 'Découvrir Mony Premium',
+                      'Découvrir Mony Premium',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: user.hasActivePremium ? Colors.amber[900] : AppColors.primary,
+                        color: AppColors.primary,
                       ),
                     ),
                     Text(
-                      user.hasActivePremium ? 'Accédez à toutes vos fonctions avancées' : 'Coach IA, Simulations, Académie...',
-                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                      'Coach IA, Simulations, Académie...',
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                   ],
                 ),

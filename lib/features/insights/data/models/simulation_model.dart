@@ -1,26 +1,18 @@
-import 'package:hive/hive.dart';
 import '../../domain/entities/simulation.dart';
 
 //part 'simulation_model.g.dart';
 
-@HiveType(typeId: 20)
-class SimulationModel extends HiveObject {
-  @HiveField(0)
+class SimulationModel {
   final String id;
 
-  @HiveField(1)
   final String name;
 
-  @HiveField(2)
   final Map<String, dynamic> parameters;
 
-  @HiveField(3)
   final Map<String, dynamic> results;
 
-  @HiveField(4)
   final String scenarioType;
 
-  @HiveField(5)
   final DateTime createdAt;
 
   SimulationModel({

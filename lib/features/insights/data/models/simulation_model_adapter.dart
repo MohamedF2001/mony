@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'simulation_model.dart';
 
 class SimulationModelAdapter extends TypeAdapter<SimulationModel> {

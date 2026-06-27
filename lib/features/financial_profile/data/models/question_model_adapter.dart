@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'question_model.dart';
 
 class QuestionModelAdapter extends TypeAdapter<QuestionModel> {

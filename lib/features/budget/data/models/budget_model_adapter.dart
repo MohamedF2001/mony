@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'budget_model.dart';
 
 class BudgetModelAdapter extends TypeAdapter<BudgetModel> {

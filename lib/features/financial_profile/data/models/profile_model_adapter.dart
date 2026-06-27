@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'profile_model.dart';
 
 class FinancialProfileModelAdapter

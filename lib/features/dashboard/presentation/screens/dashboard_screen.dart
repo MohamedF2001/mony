@@ -21,6 +21,7 @@ import '../../../transaction/presentation/screens/add_transaction_screen.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/quick_actions.dart';
 import '../widgets/spending_chart.dart';
+import '../../../../core/routes/app_routes.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -71,6 +72,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             return Center(child: Text(AppLocalizations.of(context)!.noUser));
           }
 
+          final isPremium = user.hasActivePremium;
+
           return RefreshIndicator(
             onRefresh: () async {
               await ref.read(userProvider.notifier).loadUser();
@@ -99,7 +102,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         )
                       else
                         Text(
-                          "Profil non défini ${user.subscriptionType}" ,
+                          "Profil non défini" ,
                           style: AppTypography.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
@@ -114,6 +117,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
+
+                      // Bannière Premium pour les non-abonnés
+                      if (!isPremium) _buildPremiumCTA(),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: BalanceCard(
@@ -154,6 +161,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ],
                         ),
                       ),
+
+                      if (isPremium) ...[
+                        const SizedBox(height: 24),
+                        _buildPremiumInsightsSection(),
+                      ],
+
                       const SizedBox(height: 24),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -252,6 +265,128 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         openBuilder: (context, action) {
           return const AddTransactionScreen();
         },
+      ),
+    );
+  }
+
+  Widget _buildPremiumCTA() {
+    return Container(
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.stars, color: Colors.amber, size: 32),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Passez à Mony Premium',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  'Débloquez le Coach IA et les analyses avancées.',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.premium),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Voir'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumInsightsSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Analyses Premium',
+            style: AppTypography.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildInsightCard(
+                'Coach IA',
+                Icons.smart_toy,
+                Colors.purple,
+                () => Navigator.pushNamed(context, AppRoutes.coachAi),
+              ),
+              const SizedBox(width: 12),
+              _buildInsightCard(
+                'Simulations',
+                Icons.trending_up,
+                Colors.blue,
+                () => Navigator.pushNamed(context, AppRoutes.simulation),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInsightCard(String title, IconData icon, Color color, VoidCallback onTap) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withOpacity(0.2)),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 32),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

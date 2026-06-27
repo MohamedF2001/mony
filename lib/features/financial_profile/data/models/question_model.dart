@@ -1,36 +1,26 @@
 /*
 // lib/features/financial_profile/data/models/question_model.dart
 
-import 'package:hive/hive.dart';
 import '../../domain/entities/question.dart';
 import '../../domain/entities/financial_trait.dart';
 
 part 'question_model.g.dart';
 
-@HiveType(typeId: 10)
-class QuestionModel extends HiveObject {
-  @HiveField(0)
+class QuestionModel {
   final String id;
 
-  @HiveField(1)
   final String text;
 
-  @HiveField(2)
   final int typeIndex; // QuestionType.index
 
-  @HiveField(3)
   final List<AnswerChoiceModel> choices;
 
-  @HiveField(4)
   final String? freeTextPrompt;
 
-  @HiveField(5)
   final bool isRequired;
 
-  @HiveField(6)
   final double weight;
 
-  @HiveField(7)
   final int order;
 
   QuestionModel({
@@ -73,15 +63,11 @@ class QuestionModel extends HiveObject {
   }
 }
 
-@HiveType(typeId: 11)
-class AnswerChoiceModel extends HiveObject {
-  @HiveField(0)
+class AnswerChoiceModel {
   final String id;
 
-  @HiveField(1)
   final String text;
 
-  @HiveField(2)
   final Map<int, int> scoresMap; // FinancialTraitType.index -> score
 
   AnswerChoiceModel({

@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import '../../features/financial_profile/data/models/profile_model.dart';
 import 'user_model.dart';
 
