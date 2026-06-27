@@ -18,6 +18,7 @@ final userProvider = StateNotifierProvider<UserNotifier, AsyncValue<User?>>((ref
 });
 
 class UserNotifier extends StateNotifier<AsyncValue<User?>> {
+  // ignore: unused_field
   final UserService _userService;
   final Ref _ref;
 
@@ -95,14 +96,11 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
 
         developer.log('User chargé avec profil: ${user.financialProfile?.type} et sub: ${user.subscriptionType}');
 
-        // Sauvegarde locale pour la persistance
-        await _userService.saveUser(user);
         state = AsyncValue.data(user);
         return;
       }
 
-      final localUser = await _userService.getCurrentUser();
-      state = AsyncValue.data(localUser);
+      state = const AsyncValue.data(null);
     } catch (e, stack) {
       developer.log('Erreur globale UserNotifier: $e');
       state = AsyncValue.error(e, stack);
@@ -110,29 +108,18 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   }
 
   Future<void> updateName(String name) async {
-    try {
-      await _userService.updateName(name);
-      await loadUser();
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+    // Cette méthode devrait désormais passer par l'API
+    // await _userService.updateName(name);
+    await loadUser();
   }
 
   Future<void> updateFinancialProfile(FinancialProfile profile) async {
-    try {
-      await _userService.updateFinancialProfile(profile);
-      await loadUser();
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+    // Cette méthode devrait désormais passer par l'API
+    // await _userService.updateFinancialProfile(profile);
+    await loadUser();
   }
 
   Future<void> saveUser(User user) async {
-    try {
-      await _userService.saveUser(user);
-      state = AsyncValue.data(user);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+    state = AsyncValue.data(user);
   }
 }
