@@ -1,44 +1,44 @@
 // lib/core/services/user_service.dart
 
-import 'package:hive/hive.dart';
-import '../models/user_model.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../entities/user.dart';
 import '../../features/financial_profile/domain/entities/financial_profile.dart';
+import '../../features/financial_profile/domain/entities/financial_trait.dart';
+import '../../features/financial_profile/data/models/profile_model.dart';
 
-/// Service pour gérer l'utilisateur dans Hive
+/// Service pour gérer l'utilisateur en cache via SharedPreferences (JSON)
 class UserService {
-  static const String _boxName = 'user_box';
-  static const String _userKey = 'current_user';
+  static const String _userKey = 'current_user_json';
 
   /// Sauvegarde l'utilisateur complet
   Future<void> saveUser(User user) async {
-    final box = await Hive.openBox<UserModel>(_boxName);
-    final userModel = UserModel.fromEntity(user);
-    await box.put(_userKey, userModel);
+    final prefs = await SharedPreferences.getInstance();
+    final json = _userToJson(user);
+    await prefs.setString(_userKey, jsonEncode(json));
   }
 
   /// Récupère l'utilisateur courant
   Future<User?> getCurrentUser() async {
-    final box = await Hive.openBox<UserModel>(_boxName);
-    final userModel = box.get(_userKey);
-    return userModel?.toEntity();
+    final prefs = await SharedPreferences.getInstance();
+    final userStr = prefs.getString(_userKey);
+    if (userStr == null) return null;
+    try {
+      final json = jsonDecode(userStr) as Map<String, dynamic>;
+      return _userFromJson(json);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Met à jour uniquement le nom
   Future<void> updateName(String name) async {
     final user = await getCurrentUser();
     if (user != null) {
-      final updatedUser = user.copyWith(
-        name: name,
-        updatedAt: DateTime.now(),
-      );
+      final updatedUser = user.copyWith(name: name, updatedAt: DateTime.now());
       await saveUser(updatedUser);
     } else {
-      // Créer un nouvel utilisateur
-      final newUser = User(
-        name: name,
-        createdAt: DateTime.now(),
-      );
+      final newUser = User(name: name, createdAt: DateTime.now());
       await saveUser(newUser);
     }
   }
@@ -53,9 +53,8 @@ class UserService {
       );
       await saveUser(updatedUser);
     } else {
-      // Créer un utilisateur avec le profil (sans nom pour l'instant)
       final newUser = User(
-        name: '', // Sera rempli après
+        name: '',
         financialProfile: profile,
         createdAt: DateTime.now(),
       );
@@ -81,9 +80,66 @@ class UserService {
     return user != null && user.name.isNotEmpty;
   }
 
-  /// Supprime l'utilisateur (pour reset)
+  /// Supprime l'utilisateur (pour reset / logout)
   Future<void> deleteUser() async {
-    final box = await Hive.openBox<UserModel>(_boxName);
-    await box.delete(_userKey);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userKey);
+  }
+
+  // ---- Helpers de sérialisation ----
+
+  Map<String, dynamic> _userToJson(User user) {
+    Map<String, dynamic>? profileJson;
+    if (user.financialProfile != null) {
+      final model = FinancialProfileModel.fromEntity(user.financialProfile!);
+      profileJson = model.toApiJson();
+      profileJson['_id'] = model.id;
+      profileJson['confidenceScore'] = model.confidenceScore;
+      profileJson['aiFeedback'] = model.aiFeedback;
+      profileJson['createdAt'] = model.createdAt.toIso8601String();
+      profileJson['updatedAt'] = model.updatedAt?.toIso8601String();
+    }
+    return {
+      'id': user.id,
+      'name': user.name,
+      'email': user.email,
+      'financialProfile': profileJson,
+      'createdAt': user.createdAt.toIso8601String(),
+      'updatedAt': user.updatedAt?.toIso8601String(),
+      'isPremium': user.isPremium,
+      'premiumUntil': user.premiumUntil?.toIso8601String(),
+      'subscriptionType': user.subscriptionType,
+    };
+  }
+
+  User _userFromJson(Map<String, dynamic> json) {
+    FinancialProfile? profile;
+    final profileData = json['financialProfile'];
+    if (profileData != null && profileData is Map) {
+      try {
+        profile = FinancialProfileModel.fromJson(
+          Map<String, dynamic>.from(profileData),
+        ).toEntity();
+      } catch (_) {
+        profile = null;
+      }
+    }
+
+    return User(
+      id: json['id'] as String?,
+      name: json['name'] as String? ?? '',
+      email: json['email'] as String?,
+      financialProfile: profile,
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
+      isPremium: json['isPremium'] as bool? ?? false,
+      premiumUntil: json['premiumUntil'] != null
+          ? DateTime.tryParse(json['premiumUntil'] as String)
+          : null,
+      subscriptionType: json['subscriptionType'] as String? ?? 'none',
+    );
   }
 }

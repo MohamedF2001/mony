@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/api_providers.dart';
 import '../../../../core/providers/user_provider.dart';
-import '../../../../core/services/sync_service.dart';
 import '../../../../core/services/token_service.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/models/auth_user_model.dart';
@@ -42,10 +41,9 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository repository;
-  final SyncService syncService;
   final TokenService tokenService;
 
-  AuthNotifier(this.repository, this.syncService, this.tokenService) : super(AuthState()) {
+  AuthNotifier(this.repository, this.tokenService) : super(AuthState()) {
     _init();
   }
 
@@ -60,8 +58,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final user = await repository.login(email, password);
-      // Sync local data to API after login
-      await syncService.syncLocalDataToApi();
       state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -86,8 +82,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
         avatar: avatar,
       );
-      // Sync local data to API after registration
-      await syncService.syncLocalDataToApi();
       state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -102,7 +96,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repository = ref.watch(authRepositoryProvider);
-  final syncService = ref.watch(syncServiceProvider);
   final tokenService = ref.watch(tokenServiceProvider);
-  return AuthNotifier(repository, syncService, tokenService);
+  return AuthNotifier(repository, tokenService);
 });

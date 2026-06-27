@@ -1,38 +1,16 @@
 // lib/features/financial_profile/data/datasources/financial_profile_local_datasource.dart
 
-import 'package:hive/hive.dart';
 import '../models/question_model.dart';
-import '../models/profile_model.dart';
 import '../../domain/entities/question.dart';
 import '../../domain/entities/financial_trait.dart';
 
 class FinancialProfileLocalDataSource {
-  static const String _questionsBoxName = 'questions_box';
-  static const String _profileBoxName = 'financial_profile_box';
-  static const String _profileKey = 'user_financial_profile';
 
   /// Récupère toutes les questions (hardcodées pour v1)
   Future<List<QuestionModel>> getQuestions() async {
     return _getHardcodedQuestions();
   }
 
-  /// Sauvegarde le profil financier
-  Future<void> saveProfile(FinancialProfileModel profile) async {
-    final box = await Hive.openBox<FinancialProfileModel>(_profileBoxName);
-    await box.put(_profileKey, profile);
-  }
-
-  /// Récupère le profil sauvegardé
-  Future<FinancialProfileModel?> getSavedProfile() async {
-    final box = await Hive.openBox<FinancialProfileModel>(_profileBoxName);
-    return box.get(_profileKey);
-  }
-
-  /// Supprime le profil (pour reset)
-  Future<void> deleteProfile() async {
-    final box = await Hive.openBox<FinancialProfileModel>(_profileBoxName);
-    await box.delete(_profileKey);
-  }
 
   /// Questions avec IDs compatibles MongoDB (24 caractères hex)
   List<QuestionModel> _getHardcodedQuestions() {

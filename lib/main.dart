@@ -1,63 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mony/l10n/app_localizations.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
-import 'core/models/user_model_adapter.dart';
 import 'core/routes/app_routes.dart';
 import 'core/services/notification_service.dart';
-import 'features/budget/data/models/budget_model.dart';
-import 'features/budget/data/models/budget_model_adapter.dart';
-import 'features/category/data/models/category_model.dart';
-import 'features/category/data/models/category_model_adapter.dart';
-import 'features/financial_profile/data/models/profile_model.dart';
-import 'features/financial_profile/data/models/answer_model_adapter.dart';
-import 'features/financial_profile/data/models/profile_model_adapter.dart';
-import 'features/financial_profile/data/models/question_model_adapter.dart';
-import 'features/transaction/data/models/transaction_model.dart';
-import 'features/transaction/data/models/transaction_model_adapter.dart';
 import 'features/settings/presentation/providers/app_settings_provider.dart';
 import 'core/utils/formatters.dart';
-import 'features/insights/data/models/simulation_model.dart';
-import 'features/insights/data/models/simulation_model_adapter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //TurnablePdf.initPDFLoaders();
 
   final prefs = await SharedPreferences.getInstance();
 
   // Init date formatting
   await initializeDateFormatting('fr_FR', null);
-
-  // Init Hive
-  await Hive.initFlutter();
-
-  // Register adapters
-  Hive.registerAdapter(TransactionModelAdapter());
-  Hive.registerAdapter(CategoryModelAdapter());
-  Hive.registerAdapter(BudgetModelAdapter());
-  Hive.registerAdapter(QuestionModelAdapter());
-  Hive.registerAdapter(AnswerChoiceModelAdapter());
-  Hive.registerAdapter(AnswerModelAdapter());
-  Hive.registerAdapter(FinancialProfileModelAdapter());
-  Hive.registerAdapter(UserModelAdapter());
-  Hive.registerAdapter(SimulationModelAdapter());
-
-  // Open boxes safely
-  await Future.wait([
-    Hive.openBox<TransactionModel>('transactions'),
-    Hive.openBox<CategoryModel>('categories'),
-    Hive.openBox<BudgetModel>('budgets'),
-    Hive.openBox('storage'),
-    Hive.openBox<FinancialProfileModel>('financial_profiles'),
-    Hive.openBox<SimulationModel>('simulations'),
-  ]);
 
   // Force portrait mode
   await SystemChrome.setPreferredOrientations([
@@ -75,7 +36,7 @@ void main() async {
     ),
   );
 
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: '.env');
 
   // 🔥 INITIALISATION DES NOTIFICATIONS EN ARRIÈRE-PLAN
   _initNotificationsAsync();
@@ -94,7 +55,8 @@ void main() async {
 Future<void> _initNotificationsAsync() async {
   try {
     final prefs = await SharedPreferences.getInstance();
-    final notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    final notificationsEnabled =
+        prefs.getBool('notifications_enabled') ?? true;
 
     if (notificationsEnabled) {
       final notificationService = NotificationService();
