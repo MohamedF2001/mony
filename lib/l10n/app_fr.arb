@@ -195,5 +195,17 @@
   "amountHint": "Montant du budget",
   "selectCategoryRequired": "Sélectionnez une catégorie",
   "budgetUpdated": "Budget mis à jour",
-  "budgetCreated": "Budget créé"
+  "budgetCreated": "Budget créé",
+  "monyPremiumActive": "Mony Premium Actif",
+  "discoverMonyPremium": "Découvrir Mony Premium",
+  "premiumFeaturesSubtitle": "Coach IA, Simulations, Académie...",
+  "premiumActiveSubtitle": "Accédez à toutes vos fonctions avancées",
+  "subscriptionType": "Type d'abonnement",
+  "premiumUntil": "Premium jusqu'au {date}",
+  "lifetimePlan": "Plan à vie",
+  "exclusiveFeatures": "Fonctions exclusives",
+  "coachAi": "Coach IA",
+  "simulations": "Simulations",
+  "monthlyReports": "Rapports",
+  "academy": "Académie"
 }

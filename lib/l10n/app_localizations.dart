@@ -1273,6 +1273,78 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Budget créé'**
   String get budgetCreated;
+
+  /// No description provided for @monyPremiumActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mony Premium Actif'**
+  String get monyPremiumActive;
+
+  /// No description provided for @discoverMonyPremium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir Mony Premium'**
+  String get discoverMonyPremium;
+
+  /// No description provided for @premiumFeaturesSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA, Simulations, Académie...'**
+  String get premiumFeaturesSubtitle;
+
+  /// No description provided for @premiumActiveSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accédez à toutes vos fonctions avancées'**
+  String get premiumActiveSubtitle;
+
+  /// No description provided for @subscriptionType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type d\'abonnement'**
+  String get subscriptionType;
+
+  /// No description provided for @premiumUntil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premium jusqu\'au {date}'**
+  String premiumUntil(Object date);
+
+  /// No description provided for @lifetimePlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan à vie'**
+  String get lifetimePlan;
+
+  /// No description provided for @exclusiveFeatures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctions exclusives'**
+  String get exclusiveFeatures;
+
+  /// No description provided for @coachAi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach IA'**
+  String get coachAi;
+
+  /// No description provided for @simulations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulations'**
+  String get simulations;
+
+  /// No description provided for @monthlyReports.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rapports'**
+  String get monthlyReports;
+
+  /// No description provided for @academy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Académie'**
+  String get academy;
 }
 
 class _AppLocalizationsDelegate

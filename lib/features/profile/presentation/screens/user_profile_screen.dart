@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mony/l10n/app_localizations.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
@@ -15,7 +14,6 @@ import '../../../budget/presentation/providers/budget_providers.dart';
 import '../../../category/presentation/providers/category_providers.dart';
 import '../../../financial_profile/domain/entities/financial_profile.dart';
 import '../../../financial_profile/domain/entities/financial_trait.dart';
-import '../../../financial_profile/presentation/screens/questionnaire_screen.dart';
 import '../../../settings/presentation/providers/app_reset_service_provider.dart';
 import '../../../settings/presentation/providers/app_settings_provider.dart';
 import '../../../transaction/presentation/providers/transaction_providers.dart';
@@ -114,7 +112,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
               children: [
                 _buildHeader(user, settings.locale.languageCode),
                 const SizedBox(height: 16),
-                _buildPremiumBanner(user),
+                _buildPremiumSection(user, l10n, settings.locale.languageCode),
                 const SizedBox(height: 24),
                 _buildPersonalInfoSection(user, l10n),
                 const SizedBox(height: 16),
@@ -134,46 +132,191 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  Widget _buildPremiumBanner(User user) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: InkWell(
-        onTap: () => Navigator.pushNamed(context, AppRoutes.premium),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: user.hasActivePremium ? Colors.amber[50] : AppColors.primary.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: user.hasActivePremium ? Colors.amber : AppColors.primary, width: 1.5),
+  Widget _buildPremiumSection(User user, AppLocalizations l10n, String languageCode) {
+    if (user.hasActivePremium) {
+      return _buildPremiumActiveCard(user, l10n, languageCode);
+    } else {
+      return _buildPremiumOfferCard(l10n);
+    }
+  }
+
+  Widget _buildPremiumActiveCard(User user, AppLocalizations l10n, String languageCode) {
+    String planType = '';
+    if (user.subscriptionType == 'monthly') planType = '${l10n.monthly} • ';
+    if (user.subscriptionType == 'yearly') planType = '${l10n.yearly} • ';
+
+    final expiryInfo = user.subscriptionType == 'lifetime'
+        ? l10n.lifetimePlan
+        : '$planType${user.premiumUntil != null ? l10n.premiumUntil(_formatDate(user.premiumUntil!, languageCode)) : ''}';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.amber[400]!, Colors.amber[700]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
-          child: Row(
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Icon(user.hasActivePremium ? Icons.stars_rounded : Icons.workspace_premium_rounded, 
-                   color: user.hasActivePremium ? Colors.amber[800] : AppColors.primary),
+              const Icon(Icons.stars_rounded, color: Colors.white, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user.hasActivePremium ? 'Mony Premium Actif' : 'Découvrir Mony Premium',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: user.hasActivePremium ? Colors.amber[900] : AppColors.primary,
-                      ),
+                      l10n.monyPremiumActive,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     Text(
-                      user.hasActivePremium ? 'Accédez à toutes vos fonctions avancées' : 'Coach IA, Simulations, Académie...',
-                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                      expiryInfo,
+                      style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Colors.black26),
+              IconButton(
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                onPressed: () => Navigator.pushNamed(context, AppRoutes.premium),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(color: Colors.white24),
+          ),
+          Text(
+            l10n.exclusiveFeatures,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildPremiumFeatureIcon(Icons.psychology_alt_outlined, l10n.coachAi, AppRoutes.coachAi),
+              _buildPremiumFeatureIcon(Icons.analytics_outlined, l10n.simulations, AppRoutes.simulation),
+              _buildPremiumFeatureIcon(Icons.assignment_outlined, l10n.monthlyReports, AppRoutes.monthlyReport),
+              _buildPremiumFeatureIcon(Icons.school_outlined, l10n.academy, AppRoutes.academy),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumOfferCard(AppLocalizations l10n) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: () => Navigator.pushNamed(context, AppRoutes.premium),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.workspace_premium_rounded, color: Colors.amber, size: 40),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.discoverMonyPremium,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                          Text(
+                            l10n.premiumActiveSubtitle,
+                            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.white),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildFeaturePromo(Icons.psychology, l10n.coachAi),
+                    _buildFeaturePromo(Icons.insights, l10n.simulations),
+                    _buildFeaturePromo(Icons.auto_graph, l10n.monthlyReports),
+                    _buildFeaturePromo(Icons.school, l10n.academy),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPremiumFeatureIcon(IconData icon, String label, String route) {
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, route),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 24),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeaturePromo(IconData icon, String label) {
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 20),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: AppColors.textSecondary)),
+      ],
     );
   }
 
@@ -184,38 +327,75 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       child: Container(
         decoration: BoxDecoration(
           gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
-            BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10)),
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
           ],
         ),
         padding: const EdgeInsets.all(24),
         child: Row(
           children: [
-            Container(
-              width: 64, height: 64,
-              decoration: BoxDecoration(color: AppColors.white.withOpacity(0.2), shape: BoxShape.circle),
-              child: const Icon(Icons.person, color: AppColors.white, size: 32),
+            Stack(
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.white.withOpacity(0.5),
+                      width: 2,
+                    ),
+                  ),
+                  child: const Icon(Icons.person, color: AppColors.white, size: 36),
+                ),
+                if (user.hasActivePremium)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.amber,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.stars_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        user.name.isEmpty ? l10n.noUser : user.name,
-                        style: AppTypography.textTheme.titleLarge?.copyWith(color: AppColors.white, fontWeight: FontWeight.w700),
-                      ),
-                      if (user.hasActivePremium) ...[
-                        const SizedBox(width: 8),
-                        const Icon(Icons.verified, color: Colors.amber, size: 20),
-                      ],
-                    ],
+                  Text(
+                    user.name.isEmpty ? l10n.noUser : user.name,
+                    style: AppTypography.textTheme.headlineSmall?.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(l10n.memberSince(_formatDate(user.createdAt, languageCode)), style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.white70),
+                      const SizedBox(width: 4),
+                      Text(
+                        l10n.memberSince(_formatDate(user.createdAt, languageCode)),
+                        style: const TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
